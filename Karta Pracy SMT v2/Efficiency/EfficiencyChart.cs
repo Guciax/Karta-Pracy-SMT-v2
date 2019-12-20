@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Karta_Pracy_SMT_v2.DataStorage;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -27,10 +28,12 @@ namespace Karta_Pracy_SMT_v2
 
         public static void AddPoint( PictureBox pb)
         {
-            var eff= Efficiency.CurrentShiftEfficiency.CalculateCurrentShiftEfficiency();
+            if (OrdersHistory.ordersHistory.Count == 0) return;
+            if ((DateTime.Now - OrdersHistory.ordersHistory.Select(o => o.SmtData.smtEndDate).Max()).TotalMinutes > 60) return;
+            var eff = Efficiency.CurrentShiftEfficiency.CalculateCurrentShiftEfficiency();
             if ((DateTime.Now.Minute == 0 || DateTime.Now.Minute == 30) & (DateTime.Now - lastEfficiencyDateOnChart).TotalMinutes > 20) 
             {
-                chartPoints.Add(new EffPointStruct { date = DateTime.Now, value = eff });
+                chartPoints.Add(new EffPointStruct { date = DateTime.Now, value = eff * 100});
                 DrawChart(pb);
                 lastEfficiencyDateOnChart = DateTime.Now;
             }

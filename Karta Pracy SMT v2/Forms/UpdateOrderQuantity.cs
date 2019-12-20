@@ -14,29 +14,29 @@ namespace Karta_Pracy_SMT_v2.Forms
 {
     public partial class UpdateOrderQuantity : Form
     {
-        private readonly MstOrder currentOrder;
+
         public int result = 0;
         int pcbPerMb = 1;
 
-        public UpdateOrderQuantity(MstOrder currentOrder)
+        public UpdateOrderQuantity()
         {
             InitializeComponent();
-            this.currentOrder = currentOrder;
+
         }
 
         private void UpdateOrderQuantity_Load(object sender, EventArgs e)
         {
-            if (currentOrder.modelInfo.DtModel00 != null)
+            pictureBox1.Image = BlurredBackground.ssGrayColor;
+            if (CurrentMstOrder.currentOrder.modelInfo.DtModel00 != null)
             {
-                pcbPerMb = (int)MST.MES.DtTools.GetPcbPerMbCount(currentOrder.modelInfo.DtModel00);
+                pcbPerMb = (int)DevTools.CurrentModelPcbPerMb;
                 lPcbQtyInfo.Text = $"{pcbPerMb} PCB / MB  => ";
             }
             else
             {
                 lPcbQtyInfo.Text = $"PCB/MB Brak danych => ";
             }
-
-            textBox1.Text = (currentOrder.ManufacturedQty/ pcbPerMb).ToString();
+            textBox1.Text = (CurrentMstOrder.currentOrder.ManufacturedQty/ pcbPerMb).ToString();
         }
 
         private void textBox1_TextChanged(object sender, EventArgs e)
@@ -48,7 +48,12 @@ namespace Karta_Pracy_SMT_v2.Forms
 
         private void bUp_Click(object sender, EventArgs e)
         {
-            int val = int.Parse(textBox1.Text);
+            int val = 0;
+            if(!int.TryParse(textBox1.Text, out val))
+            {
+                textBox1.Text = "0";
+                return;
+            }
             textBox1.Text = (val + 1).ToString();
         }
 
@@ -67,7 +72,5 @@ namespace Karta_Pracy_SMT_v2.Forms
             result = int.Parse(textBox1.Text) * pcbPerMb;
             this.DialogResult = DialogResult.OK;
         }
-
-
     }
 }

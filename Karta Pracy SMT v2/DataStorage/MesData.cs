@@ -17,12 +17,15 @@ namespace Karta_Pracy_SMT_v2.DataStorage
             tasks.Add(Task.Run(() => GetKitting()));
             tasks.Add(Task.Run(() => GetDevTools()));
             tasks.Add(Task.Run(() => GetSmt()));
+            tasks.Add(Task.Run(() => LedCollectiveDb.LoadDb()));
+            tasks.Add(Task.Run(() => OtherComponents.GetOtherComponentsForSmtLineFromDb()));
             await Task.WhenAll(tasks);
         }
 
         private static void GetKitting()
         {
             KittingData = MST.MES.SqlDataReaderMethods.Kitting.GetKittingDataForClientGroup(MST.MES.SqlDataReaderMethods.Kitting.clientGroup.MST, 100);
+
         }
 
         private static void GetDevTools()

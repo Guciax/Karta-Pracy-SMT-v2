@@ -13,28 +13,56 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static System.Windows.Forms.ListViewItem;
 
 namespace Karta_Pracy_SMT_v2.Forms
 {
     public partial class NewOrder : Form
     {
         public MstOrder dialogResult = new MstOrder();
+        public bool startChangeover = false;
         MST.MES.OrderStructureByOrderNo.Kitting kittingData;
         MST.MES.OrderStructureByOrderNo.SMT smtData;
         List<ushort> keysList = new List<ushort>();
+
+        public MST.MES.UsersDataBase.DataStructures.UserStructure userOperator = new MST.MES.UsersDataBase.DataStructures.UserStructure();
 
         public NewOrder()
         {
             InitializeComponent();
         }
 
-        private void NewOrder_Load(object sender, EventArgs e)
+        private async void NewOrder_Load(object sender, EventArgs e)
         {
             cbOperator.Items.AddRange(GetOperatorsArray(30));
             pbLoading.Parent = this;
             pbLoading.BringToFront();
             pbLoading.BackColor = Color.White;
-            pbLoading.Location = new Point(430, 3);
+            pbLoading.Location = new Point(550, 3);
+            ShowOrdersQueue();
+
+            await UserDb.GetUsersFromDbAsync();
+            
+        }
+
+        private void ShowOrdersQueue()
+        {
+            var orders = MesData.KittingData.Where(o => o.Value.endDate < o.Value.kittingDate).OrderBy(o=>o.Value.plannedEnd);
+            foreach (var order in orders)
+            {
+                var smtQty = 0;
+                if (MesData.SmtData.ContainsKey(order.Value.orderNo))
+                {
+                    smtQty = MesData.SmtData[order.Value.orderNo].totalManufacturedQty;
+                }
+
+                ListViewItem newItem = new ListViewItem();
+                newItem.Text = order.Value.orderNo;
+                newItem.SubItems.Add(order.Value.modelId_12NCFormat);
+                newItem.SubItems.Add(order.Value.orderedQty.ToString());
+                newItem.SubItems.Add(smtQty.ToString());
+                lvOrdersQueue.Items.Add(newItem);
+            }
         }
 
         public static string[] GetOperatorsArray(int daysAgo)
@@ -59,11 +87,6 @@ namespace Karta_Pracy_SMT_v2.Forms
             }
 
             return operators.OrderBy(o => o).ToArray();
-        }
-
-        private void tbOrderNo_KeyDown(object sender, KeyEventArgs e)
-        {
-            
         }
 
         private void DisplayOrderInfo()
@@ -173,11 +196,12 @@ namespace Karta_Pracy_SMT_v2.Forms
             await Task.Run(() => success = LoadData());
             if (success)
             {
-                tbOrderNo.Enabled = false;
+                tbOrderNo.ReadOnly = true;
                 tbOrderNo.ForeColor = Color.Black;
                 tbOrderNo.BackColor = Color.Lime;
+
+                
             }
-            
         }
 
         private async void tbOrderNo_KeyPress(object sender, KeyPressEventArgs e)
@@ -189,34 +213,132 @@ namespace Karta_Pracy_SMT_v2.Forms
                 await LoadDataAsynch();
                 pbLoading.Visible = false;
                 DisplayOrderInfo();
-                cbOperator.Enabled = true;
+                //cbOperator.Enabled = true;
+
+                MarkOrderOnList(tbOrderNo.Text);
+
+                tbOperatorCardId.Visible = true;
+                tbOperatorCardId.Enabled = true;
+                lOperatorCard.Visible = true;
+                this.ActiveControl = tbOperatorCardId;
+            }
+        }
+
+        private void MarkOrderOnList(string orderNo)
+        {
+            foreach (ListViewItem item in lvOrdersQueue.Items)
+            {
+                if(item.Text == orderNo)
+                {
+                    foreach (ListViewSubItem subItem in item.SubItems)
+                    {
+                        subItem.BackColor = Color.DarkSlateBlue;
+                        subItem.ForeColor = Color.White;
+                    }
+                    lvOrdersQueue.EnsureVisible(item.Index);
+                }
             }
         }
 
         private void tbOrderNo_Leave(object sender, EventArgs e)
         {
-            if (tbOrderNo.Enabled)
-            {
-                this.ActiveControl = tbOrderNo;
-            }
+            //if (tbOrderNo.Enabled)
+            //{
+            //    this.ActiveControl = tbOrderNo;
+            //}
         }
 
         private void tbStencil_KeyDown(object sender, KeyEventArgs e)
         {
             if(e.KeyCode == Keys.Return)
             {
-                if(QrReader.lastInputDeviceName != GlobalParameters.QrReaderName)
+                if(KeyboardDeviceListener.lastInputDeviceName != GlobalParameters.QrReaderName)
                 {
                     MessageBox.Show("Użyj czytnika!");
                     tbStencil.Text = "";
                     return;
                 }
-                if (CheckUserData())
+                //if (CheckUserData())
                 {
-                    dialogResult.StencilId = tbStencil.Text;
-                    dialogResult.OperatorName = cbOperator.Text;
-                    dialogResult.StartTime = DateTime.Now;
+                    dialogResult.SmtData = new MST.MES.OrderStructureByOrderNo.SmtRecords
+                    {
+                        smtStartDate = DateTime.Now,
+                        operatorSmt = userOperator.Name,
+                        smtEndDate = DateTime.MinValue,
+                        smtLine = GlobalParameters.SmtLine,
+                        stencilId = tbStencil.Text
+                    };
+                    dialogResult.SmtData.stencilId = tbStencil.Text;
+                    //dialogResult.SmtData.operatorSmt = cbOperator.Text;
+                    startChangeover = checkBox1.Checked;
+                    CurrentMstOrder.userOperator = userOperator;
+
+                    var stencilInfo = MST.MES.StencilManagement.GetOneStencilData(tbStencil.Text);
+                    if(stencilInfo != null)
+                    {
+                        if (stencilInfo.MaintanaceNeeded)
+                        {
+                            MessageBox.Show($"Ten szablon wykonał już {stencilInfo.CyclesCount} cykli i wymaga przeglądu." + Environment.NewLine
+                                            + "Po zakończeniu zlecenia przekaż go technikowi.");
+                        }
+                    }
+
                     this.DialogResult = DialogResult.OK;
+                }
+            }
+        }
+
+        private void cbOperator_Enter(object sender, EventArgs e)
+        {
+            cbOperator.ForeColor = Color.Black;
+        }
+
+        private void tbOperatorCardId_KeyDown(object sender, KeyEventArgs e)
+        {
+            
+        }
+
+        private void tbOperatorCardId_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (e.KeyChar == (char)13 & !tbOperatorCardId.ReadOnly)
+            {
+                //var cardHexValue = MST.MES.UsersDataBase.CardIdOperations.CardIntIdToReversedHex(tbOperatorCardId.Text);
+                //var matchingUsers = UserDb.Users.Where(x => x.CardId == cardHexValue);
+                //if (!matchingUsers.Any())
+                //{
+                //    MessageBox.Show("Brak uprawnień.");
+                //    tbOperatorCardId.Clear();
+                //    return;
+                //}
+                //userOperator = matchingUsers.First();
+                MST.MES.UsersDataBase.DataStructures.UserStructure user;
+                if (GlobalParameters.Debug)
+                {
+                    user = UserDb.Users.First();
+                }
+                else
+                {
+                    user = MST.MES.UsersDataBase.OperationsOnUsers.CheckAccessLevelReturnUser(MST.MES.UsersDataBase.DataStructures.Functions.Smt,
+                                                                                              tbOperatorCardId.Text,
+                                                                                              UserDb.Users);
+                }
+                
+                if (user != null)
+                {
+                    userOperator = user;
+                    tbOperatorCardId.Text = userOperator.Name;
+                    tbOperatorCardId.ReadOnly = true;
+                    tbOperatorCardId.BackColor = Color.Lime;
+                    tbOperatorCardId.ReadOnly = true;
+
+                    tbStencil.Visible = true;
+                    lStencilId.Visible = true;
+
+                    this.ActiveControl = tbStencil;
+                }
+                else
+                {
+                    tbOperatorCardId.Text = "";
                 }
             }
         }

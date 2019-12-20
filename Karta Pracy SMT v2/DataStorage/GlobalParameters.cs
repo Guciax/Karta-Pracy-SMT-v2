@@ -32,12 +32,30 @@ namespace Karta_Pracy_SMT_v2.DataStorage
             }
         }
 
+        public static string CardReaderName
+        {
+            get
+            {
+                if(_CardReaderName == "")
+                {
+                    RefreshKeys();
+                }
+                return _CardReaderName;
+            }
+            set
+            {
+                AddOrUpdateAppSettings("CzytnikKart", value);
+                _CardReaderName = value;
+            }
+        }
+
         private static string _QrReaderName = "";
+        private static string _CardReaderName = @"\\?\HID#VID_FFFF&PID_0035&MI_00#8&8b12fef&0&0000#{884b96c3-56ef-11d1-bc8c-00a0c91405dd}";
+
         public static string QrReaderName
         {
             get
             {
-
                 if (_QrReaderName == "")
                 {
                     RefreshKeys();
@@ -54,6 +72,8 @@ namespace Karta_Pracy_SMT_v2.DataStorage
         private static void RefreshKeys()
         {
             _QrReaderName = ReadKey("CzytnikQr");
+            _CardReaderName = ReadKey("CzytnikKart");
+            _SmtLine = ReadKey("Linia");
         }
 
         private static string ReadKey(string key)

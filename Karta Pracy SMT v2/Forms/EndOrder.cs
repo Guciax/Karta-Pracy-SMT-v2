@@ -1,4 +1,5 @@
-﻿using Karta_Pracy_SMT_v2.DataStorage;
+﻿using BrightIdeasSoftware;
+using Karta_Pracy_SMT_v2.DataStorage;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -8,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static Karta_Pracy_SMT_v2.PcbUsedInOrder;
 
 namespace Karta_Pracy_SMT_v2.Forms
 {
@@ -17,6 +19,8 @@ namespace Karta_Pracy_SMT_v2.Forms
         {
             InitializeComponent();
         }
+
+        public int finalQty = 0;
 
         private void EndOrder_Load(object sender, EventArgs e)
         {
@@ -34,7 +38,7 @@ namespace Karta_Pracy_SMT_v2.Forms
                 else model.QtyNew = model.Qty;
             };
 
-            tbManufacuredQty.Text = CurrentMstOrder.currentOrder.ManufacturedQty.ToString();
+            tbManufacuredQty.Text = Math.Round(CurrentMstOrder.currentOrder.ManufacturedQty / DevTools.CurrentModelPcbPerMb, 0).ToString();
             tbNg.Text = CurrentMstOrder.currentOrder.NgQty.ToString();
         }
 
@@ -51,7 +55,7 @@ namespace Karta_Pracy_SMT_v2.Forms
 
         private void tbManufacuredQty_TextChanged(object sender, EventArgs e)
         {
-            lPcbQty.Text = (int.Parse(tbManufacuredQty.Text) * CurrentMstOrder.currentOrder.modelInfo.PcbPerMbCount).ToString();
+            lPcbQty.Text = (int.Parse(tbManufacuredQty.Text) * DevTools.CurrentModelPcbPerMb).ToString();
         }
 
         private void bNgDown_Click(object sender, EventArgs e)
@@ -68,6 +72,50 @@ namespace Karta_Pracy_SMT_v2.Forms
         private void tbNg_TextChanged(object sender, EventArgs e)
         {
             lLedScrap.Text = (int.Parse(tbNg.Text) * CurrentMstOrder.currentOrder.modelInfo.LedCount).ToString();
+        }
+
+        private void bSave_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                foreach (var led in LedsUsed.ledsUsedList)
+                {
+                    if (led.QtyNew > 0) continue;
+                    MST.MES.SqlOperations.SparingLedInfo.UpdateLedQuantity(led.Nc12, led.Id, "0");
+                }
+
+                foreach (var pcb in PcbUsedInOrder.pcbUsedList)
+                {
+                    if (pcb.QtyNew == pcb.Qty) continue;
+                    MST.MES.SqlOperations.SparingLedInfo.UpdateLedQuantity(pcb.Nc12, pcb.Id, pcb.QtyNew.ToString());
+                    MST.MES.SqlOperations.SparingLedInfo.UpdateLedLocation(pcb.Nc12, pcb.Id, pcb.OriginalLocation);
+                }
+                finalQty = int.Parse(lPcbQty.Text);
+                this.DialogResult = DialogResult.OK;
+            }
+            catch
+            {
+                MessageBox.Show("Błąd połączenia z bazą danych. Spróbuj ponownie za jakiś czas.");
+            }
+        }
+        
+        private void olvPcb_ButtonClick(object sender, CellClickEventArgs e)
+        {
+            PcbUsedStruct field = (PcbUsedStruct)e.Model;
+            var item = e.Item.SubItems[2];
+            int currentQty = int.Parse(item.Text);
+
+            if (e.Column.AspectName == "UpNewQty")
+            {
+                if (currentQty >= field.Qty) return;
+                field.QtyNew = currentQty + 1;
+                olvPcb.RefreshItem(e.Item);
+            }
+            if (e.Column.AspectName == "DownNewQty" & currentQty > 0)
+            {
+                field.QtyNew = currentQty - 1;
+                olvPcb.RefreshItem(e.Item);
+            }
         }
     }
 }

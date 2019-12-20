@@ -15,6 +15,9 @@ namespace Karta_Pracy_SMT_v2.Forms
     {
         public string nc12;
         public string id;
+
+
+
         public ScanLedQr()
         {
             InitializeComponent();
@@ -29,7 +32,7 @@ namespace Karta_Pracy_SMT_v2.Forms
         {
             if(e.KeyCode == Keys.Return)
             {
-                if(QrReader.lastInputDeviceName!= GlobalParameters.QrReaderName)
+                if(KeyboardDeviceListener.lastInputDeviceName!= GlobalParameters.QrReaderName)
                 {
                     MessageBox.Show("Użytj czytnika QR.");
                     textBox1.Text = "";
@@ -53,7 +56,18 @@ namespace Karta_Pracy_SMT_v2.Forms
 
         private void ScanLedQr_Load(object sender, EventArgs e)
         {
+            pictureBox1.Image = BlurredBackground.ApplyBlur(BlurredBackground.ssGrayColor);
+        }
 
+        private void ScanLedQr_Resize(object sender, EventArgs e)
+        {
+            panel1.Left = (this.ClientSize.Width - panel1.Width) / 2;
+            panel1.Top = (this.ClientSize.Height - panel1.Height) / 2;
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            this.Close();
         }
     }
 }

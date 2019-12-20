@@ -18,6 +18,8 @@ namespace Karta_Pracy_SMT_v2
 
         public class PcbUsedStruct
         {
+            private int _qtyNew;
+
             public string Nc12 { get; set; }
             public string Nc12_Formated
             {
@@ -29,7 +31,18 @@ namespace Karta_Pracy_SMT_v2
 
             public string Id { get; set; }
             public int Qty { get; set; }
-            public int QtyNew { get; set; }
+            public int QtyNew
+            {
+                get { return _qtyNew; }
+                set
+                {
+                    if (value < 0)
+                    {
+                        _qtyNew = 0;
+                    }
+                    _qtyNew = value;
+                }
+            }
             public Bitmap StatusIcon
             {
                 get
@@ -38,40 +51,66 @@ namespace Karta_Pracy_SMT_v2
                     return Karta_Pracy_SMT_v2.Properties.Resources.Trash_White;
                 }
             }
+
+            public string UpNewQty
+            {
+                get { return "+"; }
+            }
+
+            public string DownNewQty
+            {
+                get { return "-"; }
+
+            }
+
+            public string OriginalLocation { get; set; }
         }
 
         public static void DebugAddPcb()
         {
-            AddNewPcb("401044101312", "100096");
-            AddNewPcb("401044101312", "100097");
-            AddNewPcb("401044101312", "100060");
-
-            MovePcbToTrash("401044101312", "100060");
+            //AddNewPcb("401044101312", "100096");
+            //AddNewPcb("401044101312", "100097");
+            //AddNewPcb("401044101312", "100060");
+            //MovePcbToTrash("401044101312", "100060");
         }
 
-        public static void AddNewPcb(string nc12, string id)
+        public static bool AddNewPcb(string nc12, string id)
         {
+            if(pcbUsedList.Where(x=>x.Nc12 == nc12 & x.Id == id).Count() > 0)
+            {
+                MessageBox.Show("Ta płyta PCB została już dodana." + Environment.NewLine + $"12NC: {nc12}" + Environment.NewLine + $"ID: {id}");
+                return false;
+            }
+
             DataTable reelTable = MST.MES.SqlOperations.SparingLedInfo.GetInfoFor12NC_ID(nc12, id);
             if (reelTable.Rows.Count == 0)
             {
-                MessageBox.Show("Brak informacji tym kodzie w bazie danych.");
-                return;
+                MessageBox.Show("Brak informacji o tym kodzie w bazie danych.");
+                return false;
             }
+            if(reelTable.Rows[0]["Z_RegSeg"].ToString().ToUpper() == "VERTE")
+            {
+                MessageBox.Show("Ten komponent nie został przyjęty na wejsciu do produkcji.");
+                return false;
+            }
+
+
             int qty = int.Parse(reelTable.Rows[0]["Ilosc"].ToString());
-
-
+            string location = reelTable.Rows[0]["Z_RegSeg"].ToString();
             //AddLedToListView(nc12, id, qty, binId);
-            AddPcbToList(nc12, id, qty);
+            AddPcbToList(nc12, id, qty, location);
+            return true;
         }
 
-        private static void AddPcbToList(string nc12, string id, int qty)
+        private static void AddPcbToList(string nc12, string id, int qty, string originalLocation)
         {
             PcbUsedStruct newLed = new PcbUsedStruct
             {
                 Nc12 = nc12,
                 Id = id,
                 Qty = qty,
-                QtyNew = qty
+                QtyNew = qty,
+                OriginalLocation = originalLocation
             };
             pcbUsedList.Add(newLed);
             olvPcbUsed.SetObjects(pcbUsedList);
@@ -87,16 +126,18 @@ namespace Karta_Pracy_SMT_v2
                 return;
             }
 
+            MST.MES.SqlOperations.SparingLedInfo.UpdateLedQuantity(nc12, id, "0");
+            MST.MES.SqlOperations.SparingLedInfo.UpdateLedLocation(nc12, id, "KOSZ");
             items.First().QtyNew = 0;
+            items.First().Qty = 0; //both = 0 meaning saved to db.
             olvPcbUsed.UpdateObject(items.First());
         }
-
-
 
         internal static void ClearList()
         {
             pcbUsedList.Clear();
-            olvPcbUsed.UpdateObjects(pcbUsedList);
+            olvPcbUsed.Items.Clear();
+            olvPcbUsed.SetObjects(pcbUsedList);
         }
     }
 }

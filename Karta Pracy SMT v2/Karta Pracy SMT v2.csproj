@@ -42,7 +42,7 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
+    <PlatformTarget>x86</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -93,6 +93,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BlurredBackground.cs" />
+    <Compile Include="ChangeOver.cs" />
+    <Compile Include="DataStorage\ConnectedOrder.cs" />
     <Compile Include="DataStorage\CurrentMstOrder.cs" />
     <Compile Include="DataStorage\DevTools.cs" />
     <Compile Include="DataStorage\GlobalParameters.cs" />
@@ -102,11 +104,23 @@
     <Compile Include="DgvTools.cs" />
     <Compile Include="Efficiency\EfficiencyChart.cs" />
     <Compile Include="Efficiency\CurrentShiftEfficiency.cs" />
+    <Compile Include="Forms\ChangePcbPerMbQty.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\ChangePcbPerMbQty.Designer.cs">
+      <DependentUpon>ChangePcbPerMbQty.cs</DependentUpon>
+    </Compile>
     <Compile Include="Forms\EndOrder.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Forms\EndOrder.Designer.cs">
       <DependentUpon>EndOrder.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\EnterPctOnMbQtyManually.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\EnterPctOnMbQtyManually.Designer.cs">
+      <DependentUpon>EnterPctOnMbQtyManually.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\Form1.cs">
       <SubType>Form</SubType>
@@ -120,11 +134,23 @@
     <Compile Include="Forms\NewOrder.Designer.cs">
       <DependentUpon>NewOrder.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms\Options.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Options.Designer.cs">
+      <DependentUpon>Options.cs</DependentUpon>
+    </Compile>
     <Compile Include="Forms\QrReaderLearning.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Forms\QrReaderLearning.Designer.cs">
       <DependentUpon>QrReaderLearning.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\ReadRfidCard.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\ReadRfidCard.Designer.cs">
+      <DependentUpon>ReadRfidCard.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\ScanLedQr.cs">
       <SubType>Form</SubType>
@@ -138,15 +164,27 @@
     <Compile Include="Forms\UpdateOrderQuantity.Designer.cs">
       <DependentUpon>UpdateOrderQuantity.cs</DependentUpon>
     </Compile>
+    <Compile Include="LedCollectiveDb.cs" />
     <Compile Include="LedsUsed.cs" />
+    <Compile Include="OtherComponents.cs" />
+    <Compile Include="PanelDoubleBuffered.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="PcbUsedInOrder.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="QrReader.cs" />
     <Compile Include="SmtLineFile.cs" />
     <Compile Include="SqlOperations.cs" />
+    <Compile Include="UserDb.cs" />
+    <EmbeddedResource Include="Forms\ChangePcbPerMbQty.resx">
+      <DependentUpon>ChangePcbPerMbQty.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\EndOrder.resx">
       <DependentUpon>EndOrder.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\EnterPctOnMbQtyManually.resx">
+      <DependentUpon>EnterPctOnMbQtyManually.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
@@ -154,8 +192,14 @@
     <EmbeddedResource Include="Forms\NewOrder.resx">
       <DependentUpon>NewOrder.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Options.resx">
+      <DependentUpon>Options.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\QrReaderLearning.resx">
       <DependentUpon>QrReaderLearning.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\ReadRfidCard.resx">
+      <DependentUpon>ReadRfidCard.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\ScanLedQr.resx">
       <DependentUpon>ScanLedQr.cs</DependentUpon>
@@ -188,6 +232,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\MST.MES\MST.MES\MST.MES.csproj">
+      <Project>{3a75370e-11b7-4582-a6af-73caf3a9e997}</Project>
+      <Name>MST.MES</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\rawinput_2\RawInput\RawInput.csproj">
       <Project>{4143D085-38CF-4640-BB05-2FDFFAF94D76}</Project>
       <Name>RawInput</Name>
@@ -210,6 +258,12 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="License-LGPL.txt" />
+    <None Include="Resources\cardScan.png" />
+    <None Include="Resources\changeOver.png" />
+    <None Include="Resources\regal.png" />
+    <None Include="Resources\close.png" />
+    <None Include="Resources\Options_icon.png" />
+    <None Include="Resources\finish.png" />
     <None Include="Resources\Trash_White.png" />
     <None Include="Resources\InUse_White.png" />
     <None Include="Resources\plusIcon.png" />

@@ -3,6 +3,7 @@ using Karta_Pracy_SMT_v2.Forms;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,9 +14,11 @@ namespace Karta_Pracy_SMT_v2.DataStorage
     public class CurrentMstOrder
     {
         private static MstOrder _currentOrder;
-
+        public static bool updateFormIsDisplayed = false;
         public static ListView lvOrderInfo;
         public static ListView lvProdNorms;
+        public static MST.MES.UsersDataBase.DataStructures.UserStructure userOperator = new MST.MES.UsersDataBase.DataStructures.UserStructure();
+
         public static MstOrder currentOrder
         {
             get
@@ -25,12 +28,15 @@ namespace Karta_Pracy_SMT_v2.DataStorage
             set
             {
                 _currentOrder = value;
+                ConnectedToCurrentOrder.SetUpConnectedOrder();
                 UpdateListViewOrderInfo();
                 UpdateListViewProductionNorms();
+                OtherComponents.otherComponentsList.RemoveAll(c => c.componentMissing);
+                DevTools.PcbPerMbOverwritenByUser = 0;
             }
         }
 
-        private static void UpdateListViewProductionNorms()
+        public static void UpdateListViewProductionNorms()
         {
             lvProdNorms.Items.Clear();
             if (_currentOrder == null) return;
@@ -52,18 +58,30 @@ namespace Karta_Pracy_SMT_v2.DataStorage
         public static void UpdateListViewOrderInfo()
         {
             lvOrderInfo.Items.Clear();
-            if (_currentOrder != null)
+            if (_currentOrder != null) 
             {
                 lvOrderInfo.Items.Add(new ListViewItem(new[] { "Numer:", _currentOrder.OrderNo }));
                 lvOrderInfo.Items.Add(new ListViewItem(new[] { "10NC:", _currentOrder.Model10NcFormated }));
                 lvOrderInfo.Items.Add(new ListViewItem(new[] { "Nazwa:", _currentOrder.ModelName }));
                 lvOrderInfo.Items.Add(new ListViewItem(new[] { "Ilość zlecona:", $"{_currentOrder.KittingData.orderedQty} szt." }));
                 lvOrderInfo.Items.Add(new ListViewItem(new[] { "Wykonano:", $"{_currentOrder.ManufacturedQty} szt." }));
-                int previousQty = OrdersHistory.ordersHistory.Where(o => o.OrderNo == _currentOrder.OrderNo).Select(o => o.SmtData.manufacturedQty).Sum();
-                lvOrderInfo.Items.Add(new ListViewItem(new[] { "Łącznie:", $"{previousQty + _currentOrder.ManufacturedQty} szt." }));
-                lvOrderInfo.Items.Add(new ListViewItem(new[] { "Odpad:", $"{_currentOrder.NgQty} szt." }));
-            }
 
+                int previousQty = MesData.SmtData.Where(o => o.Key == _currentOrder.OrderNo).Select(x => x.Value.totalManufacturedQty).Sum();
+                lvOrderInfo.Items.Add(new ListViewItem(new[] { "Łącznie:", $"{previousQty + _currentOrder.ManufacturedQty} szt." }));
+                lvOrderInfo.Items.Add(new ListViewItem(new[] { "Start:", _currentOrder.SmtData.smtStartDate.ToString("HH:mm") }));
+                lvOrderInfo.Items.Add(new ListViewItem(new[] { "Wydajność:", $"{Math.Round(_currentOrder.ManufacturedQty / (DateTime.Now - _currentOrder.SmtData.smtStartDate).TotalHours,1)} szt/h" }));
+                lvOrderInfo.Items.Add(new ListViewItem(new[] { "Stencil:", _currentOrder.StencilId }));
+                if (_currentOrder.KittingData.ledsChoosenByPlanner != null) 
+                {
+                    lvOrderInfo.Items.Add(new ListViewItem(new[] { "Diody LED:" }));
+                    Char binLetter = 'A';
+                    foreach (var led in _currentOrder.KittingData.ledsChoosenByPlanner)
+                    {
+                        lvOrderInfo.Items.Add(new ListViewItem(new[] { $"BIN{binLetter.ToString()}:", led.Insert(4," ").Insert(8," ") }));
+                        binLetter++;
+                    }
+                }
+            }
             lvOrderInfo.Columns[0].Width = -1;
             lvOrderInfo.Columns[1].Width = -1;
         }
@@ -97,7 +115,7 @@ namespace Karta_Pracy_SMT_v2.DataStorage
 
         private static void TryGetPcbPerMb(ListView lvOrderInfo)
         {
-            var pcbPerMb = MST.MES.DtTools.GetPcbPerMbCount(_currentOrder.modelInfo.DtModel00);
+            var pcbPerMb = DevTools.CurrentModelPcbPerMb;
             if (pcbPerMb > 0)
             {
                 lvOrderInfo.Items.Add(new ListViewItem(new[] { "PCB / MB:", pcbPerMb.ToString() + " szt." }));
@@ -119,37 +137,59 @@ namespace Karta_Pracy_SMT_v2.DataStorage
             }
         }
 
-        private static bool updateFormIsDisplayed = false;
-        public static void UpdateOrderQty()
+        public static void UpdateOrderQty(PictureBox pbBackgroundImage)
         {
-            if (currentOrder == null) return;
-            if ((DateTime.Now - currentOrder.LastUpdateTime).TotalMinutes < 30) return;
-            if (updateFormIsDisplayed) return;
+            if (CurrentMstOrder.currentOrder == null) return;
+            if ((DateTime.Now - CurrentMstOrder.currentOrder.LastUpdateTime).TotalMinutes < 30) return;
+            if (CurrentMstOrder.updateFormIsDisplayed) return;
+            if (ChangeOver.changeOverInProgress) return;
 
-            using (UpdateOrderQuantity updForm = new UpdateOrderQuantity(CurrentMstOrder.currentOrder))
+            using (UpdateOrderQuantity updForm = new UpdateOrderQuantity())
             {
+                var smooth = BlurredBackground.ApplyBlur(BlurredBackground.ssGrayColor);
+                pbBackgroundImage.Image = smooth;
+                pbBackgroundImage.Visible = true;
                 updateFormIsDisplayed = true;
                 if (updForm.ShowDialog() == DialogResult.OK)
                 {
-                    CurrentMstOrder.currentOrder.ManufacturedQty = updForm.result;
-
-                    if (CurrentMstOrder.currentOrder.dbRecordIndex > 0)
+                    if (!GlobalParameters.Debug)
                     {
-                        //update
-                        SqlOperations.UpdateCurrentMstOrderQuantity(updForm.result, CurrentMstOrder.currentOrder.dbRecordIndex);
+                        CurrentMstOrder.currentOrder.ManufacturedQty = updForm.result;
+                        ConnectedToCurrentOrder.UpdateConnectedOrderQty();
+                        CurrentMstOrder.UpdateOrSaveCurretOrderAndConnected();
+                        
+                        updateFormIsDisplayed = false;
                     }
-                    else
-                    {
-                        //insert
-                        CurrentMstOrder.currentOrder.dbRecordIndex = SqlOperations.InsertCurrentRecordToDb(CurrentMstOrder.currentOrder);
-                    }
+                }
+                pbBackgroundImage.Visible = false;
+            }
+        }
 
-                    currentOrder.LastUpdateTime = DateTime.Now;
-                    updateFormIsDisplayed = false;
+        public static void UpdateOrSaveCurretOrderAndConnected()
+        {
+            if (CurrentMstOrder.currentOrder.dbRecordIndex > 0)
+            {
+                //update
+                SqlOperations.UpdateCurrentMstOrderQuantity(CurrentMstOrder.currentOrder.dbRecordIndex);
+                if (ConnectedToCurrentOrder.ConnectedOrder != null)
+                {
+                    SqlOperations.UpdateCurrentMstOrderQuantity(ConnectedToCurrentOrder.ConnectedOrder.dbRecordIndex);
+                }
+            }
+            else
+            {
+                //insert
+                int thisOrderDbId = SqlOperations.InsertSmtRecordToDb(CurrentMstOrder.currentOrder);
+                CurrentMstOrder.currentOrder.dbRecordIndex = thisOrderDbId;
+                if (ConnectedToCurrentOrder.ConnectedOrder != null)
+                {
+                    int connectedOrderId = SqlOperations.InsertSmtRecordToDb(ConnectedToCurrentOrder.ConnectedOrder);
+                    ConnectedToCurrentOrder.ConnectedOrder.dbRecordIndex = connectedOrderId;
                 }
             }
 
-
+            MST.MES.StencilManagement.AddCyclesToStencil(currentOrder.StencilId, currentOrder.ManufacturedQty / (int)currentOrder.modelInfo.PcbPerMbCount);
+            currentOrder.LastUpdateTime = DateTime.Now;
         }
     }
 }

@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace Karta_Pracy_SMT_v2
 {
-    public class QrReader
+    public class KeyboardDeviceListener
     {
-        public QrReader()
+        public KeyboardDeviceListener()
         {
 
         }
@@ -27,6 +27,29 @@ namespace Karta_Pracy_SMT_v2
         public static void rawinput_KeyPressed(object sender, InputEventArg e)
         {
             lastInputDeviceName = e.KeyPressEvent.DeviceName;
+        }
+
+        public static string ReverseHex(string inputHex)
+        {
+            var splitted = inputHex.SplitInParts(2);
+            return string.Join("", splitted.Reverse());
+        }
+
+        
+    }
+
+    static class StringExtensions
+    {
+
+        public static IEnumerable<String> SplitInParts(this String s, Int32 partLength)
+        {
+            if (s == null)
+                throw new ArgumentNullException("s");
+            if (partLength <= 0)
+                throw new ArgumentException("Part length has to be positive.", "partLength");
+
+            for (var i = 0; i < s.Length; i += partLength)
+                yield return s.Substring(i, Math.Min(partLength, s.Length - i));
         }
 
     }

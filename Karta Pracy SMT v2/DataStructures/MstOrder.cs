@@ -1,4 +1,5 @@
 ﻿using Karta_Pracy_SMT_v2.DataStorage;
+using Karta_Pracy_SMT_v2.Forms;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -46,8 +47,8 @@ namespace Karta_Pracy_SMT_v2.DataStructures
                 return null;
             }
         }
-        public string StencilId { get; set; }
-        public string OperatorName { get; set; }
+        public string StencilId { get { return SmtData.stencilId; } }
+        public string OperatorName { get { return SmtData.operatorSmt; } }
         public int ManufacturedQty
         {
             get { return _ManufacturedQty; }
@@ -56,15 +57,14 @@ namespace Karta_Pracy_SMT_v2.DataStructures
                 _ManufacturedQty = value;
                 LastUpdateTime = DateTime.Now;
                 CurrentMstOrder.UpdateListViewOrderInfo();
+                modelInfo.CheckMbQty();
             }
         }
         private int _ManufacturedQty;
         public int NgQty { get; set; }
 
         public int dbRecordIndex = -1;
-        public DateTime StartTime = DateTime.Now;
         public DateTime LastUpdateTime = DateTime.Now;
-        public DateTime EndTime { get; set; }
         public Kitting KittingData { get; set; }
         public SmtRecords SmtData { get; set; }
 
@@ -75,7 +75,31 @@ namespace Karta_Pracy_SMT_v2.DataStructures
             public MST.MES.Data_structures.DevToolsModelStructure DtModel46 { get; set; }
             public float PcbPerMbCount
             {
-                get { return MST.MES.DtTools.GetPcbPerMbCount(DtModel00); }
+                get
+                {
+                    float dtQty= MST.MES.DtTools.GetPcbPerMbCount(DtModel00);
+                    if (dtQty > 0) return dtQty;
+                    return manuallyEnteredPcbQty;
+                }
+            }
+            private float manuallyEnteredPcbQty = 1;
+
+            /// <summary>
+            /// If DT data is not OK enter PCB qty manually.
+            /// </summary>
+            public void CheckMbQty()
+            {
+                float dtQty = MST.MES.DtTools.GetPcbPerMbCount(DtModel00);
+                if (dtQty < 0)
+                {
+                    using(EnterPcbOnMbQtyManually enterQtyForm = new EnterPcbOnMbQtyManually())
+                    {
+                        if(enterQtyForm.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                        {
+                            manuallyEnteredPcbQty = enterQtyForm.currentQty;
+                        }
+                    }
+                }
             }
 
             public float LedCount { get

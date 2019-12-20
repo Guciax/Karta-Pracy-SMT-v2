@@ -49,19 +49,32 @@ namespace Karta_Pracy_SMT_v2
 
         public static void AddNewLed(string nc12, string id)
         {
+            if (ledsUsedList.Where(x => x.Nc12 == nc12 & x.QtyNew > 0).Count() > 2)
+            {
+                MessageBox.Show("Przenieś diody do kosza aby dodać nowe." + Environment.NewLine + "Max. 2 rolki w użyciu na każde 12NC diody.");
+                return;
+            }
+
+            if(ledsUsedList.Where(x=>x.Nc12==nc12 & x.Id == id).Count() > 0)
+            {
+                MessageBox.Show("Ta dioda została już dodana." + Environment.NewLine + $"12NC: {nc12}" + Environment.NewLine + $"ID: {id}");
+                return;
+            }
+
             DataTable reelTable = MST.MES.SqlOperations.SparingLedInfo.GetInfoFor12NC_ID(nc12, id);
             if (reelTable.Rows.Count == 0)
             {
                 MessageBox.Show("Brak informacji tym kodzie w bazie danych.");
                 return;
             }
+
             string qty = reelTable.Rows[0]["Ilosc"].ToString();
             string binId = reelTable.Rows[0]["Tara"].ToString();
             string zlecenieString = reelTable.Rows[0]["ZlecenieString"].ToString();
-
-            if (zlecenieString != CurrentMstOrder.currentOrder.OrderNo)
+            
+            if (zlecenieString != CurrentMstOrder.currentOrder.OrderNo & zlecenieString != CurrentMstOrder.currentOrder.KittingData.connectedOrder)
             {
-                MessageBox.Show($"Ta rolka aktualnie przypisana jest do zlecenia: {zlecenieString}");
+                MessageBox.Show($"Ta dioda aktualnie przypisana jest do zlecenia: {zlecenieString}");
                 return;
             }
 
@@ -96,11 +109,9 @@ namespace Karta_Pracy_SMT_v2
 
         public static void ClearList()
         {
-            ledsUsedList.Clear();
-            olvLedsUsed.UpdateObjects(ledsUsedList);
+            ledsUsedList = new List<LedsUsedStruct>();
+            olvLedsUsed.Items.Clear();
+            olvLedsUsed.SetObjects(ledsUsedList);
         }
-
-        
-
     }
 }

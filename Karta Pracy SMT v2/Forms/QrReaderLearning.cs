@@ -25,7 +25,7 @@ namespace Karta_Pracy_SMT_v2.Forms
         {
             if(e.KeyCode == Keys.Return)
             {
-                GlobalParameters.QrReaderName = QrReader.lastInputDeviceName;
+                GlobalParameters.QrReaderName = KeyboardDeviceListener.lastInputDeviceName;
                 this.Close();
             }
         }
