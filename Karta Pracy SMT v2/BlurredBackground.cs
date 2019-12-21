@@ -1,5 +1,4 @@
-﻿using Emgu.CV;
-using Emgu.CV.Structure;
+﻿
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -21,12 +20,12 @@ namespace Karta_Pracy_SMT_v2
         }
         public static System.Drawing.Bitmap ApplyBlur(System.Drawing.Bitmap img)
         {
-            Image<Gray, float> inputImage = new Image<Gray, float>(img);
+            //Image<Gray, float> inputImage = new Image<Gray, float>(img);
            // Image<Gray, float> smoothedImage = inputImage.SmoothBlur(10, 10);
 
-            var result = inputImage.ToBitmap();
+            //var result = inputImage.ToBitmap();
 
-            return result;
+            return img;
         }
 
 

@@ -89,7 +89,8 @@ namespace Karta_Pracy_SMT_v2
                 }
             }
 
-            MST.MES.SqlOperations.SparingLedInfo.UpdateLedLocation(nc12, id, GlobalParameters.SmtLine);
+            //MST.MES.SqlOperations.SparingLedInfo.UpdateLedLocation(nc12, id, GlobalParameters.SmtLine);
+            Graffiti.MST.ComponentsTools.UpdateDbData.UpdateComponentLocation($"{nc12}|ID:{id}", GlobalParameters.SmtLine);
             GetOtherComponentsForSmtLineFromDb();
             UpdateList();
         }
@@ -101,8 +102,10 @@ namespace Karta_Pracy_SMT_v2
                 MessageBox.Show("Tego komponentu nie ma liście");
                 return;
             }
-            MST.MES.SqlOperations.SparingLedInfo.UpdateLedQuantity(nc12, id, "0");
-            MST.MES.SqlOperations.SparingLedInfo.UpdateLedLocation(nc12, id, "KOSZ");
+            //MST.MES.SqlOperations.SparingLedInfo.UpdateLedQuantity(nc12, id, "0");
+            Graffiti.MST.ComponentsTools.UpdateDbData.UpdateComponentQty($"{nc12}|ID:{id}", 0);
+            //MST.MES.SqlOperations.SparingLedInfo.UpdateLedLocation(nc12, id, "KOSZ");
+            Graffiti.MST.ComponentsTools.UpdateDbData.UpdateComponentLocation($"{nc12}|ID:{id}", "KOSZ");
             
             UpdateList();
             olvOtherComponents.SetObjects(otherComponentsList);
@@ -118,57 +121,13 @@ namespace Karta_Pracy_SMT_v2
             //4010411#Konektor#EL2.A-2/1
             //4010434#Etykieta#EL2.A-1/1
 
-
             if (otherComponentsList.Where(x => x.Nc12 == nc12 & x.Id == id).Count() == 0)
             {
                 MessageBox.Show("Tego komponentu nie ma liście");
                 return;
             }
 
-            switch (nc12.Substring(0,7))
-            {
-                case "4010441":
-                    {
-                        MST.MES.SqlOperations.SparingLedInfo.UpdateLedLocation(nc12, id, "EL2.B-1/1");
-                        break;
-                    }
-                case "4010440":
-                    {
-                        MST.MES.SqlOperations.SparingLedInfo.UpdateLedLocation(nc12, id, "EL2.B-1/1");
-                        break;
-                    }
-                case "4010460":
-                    {
-                        MST.MES.SqlOperations.SparingLedInfo.UpdateLedLocation(nc12, id, "Kitting");
-                        break;
-                    }
-                case "4010560":
-                    {
-                        MST.MES.SqlOperations.SparingLedInfo.UpdateLedLocation(nc12, id, "Kitting");
-                        break;
-                    }
-                case "4010450":
-                    {
-                        MST.MES.SqlOperations.SparingLedInfo.UpdateLedLocation(nc12, id, "EL2.A-2/1");
-                        break;
-                    }
-                case "4010411":
-                    {
-                        MST.MES.SqlOperations.SparingLedInfo.UpdateLedLocation(nc12, id, "EL2.A-2/1");
-                        break;
-                    }
-                case "4010434":
-                    {
-                        MST.MES.SqlOperations.SparingLedInfo.UpdateLedLocation(nc12, id, "EL2.A-1/1");
-                        break;
-                    }
-                default:
-                    {
-                        MST.MES.SqlOperations.SparingLedInfo.UpdateLedLocation(nc12, id, "EL2.A-2/1");
-                        break;
-                    }
-                
-            }
+            Graffiti.MST.ComponentsTools.UpdateDbData.UpdateComponentLocation($"{nc12}|ID:{id}", Graffiti.MST.ComponentsTools.GetComponentDefaultLocation(nc12));
             UpdateList();
             olvOtherComponents.SetObjects(otherComponentsList);
         }
@@ -176,45 +135,21 @@ namespace Karta_Pracy_SMT_v2
         public static void GetOtherComponentsForSmtLineFromDb()
         {
             List<OtherComponentsStruct> result = new List<OtherComponentsStruct>();
-
-            string connectionString = @"Data Source=MSTMS010;Initial Catalog=ConnectToMSTDB;User Id=mes;Password=mes;";
-            string query = $@"SELECT NC12,ID,Ilosc,Data_Czas,Z_RegSeg FROM ConnectToMSTDB.dbo.DaneBierzaceKompAktualne_FULL where Z_RegSeg = '{GlobalParameters.SmtLine}' AND Ilosc<>'0'";
-
-            using (SqlConnection conn = new SqlConnection(@"Data Source=MSTMS010;Initial Catalog=MES;User Id=mes;Password=mes;"))
+            var allComponents = Graffiti.MST.ComponentsTools.GetDbData.GetComponentsFromLocation(GlobalParameters.SmtLine);
+            var removedLedAndPcb = allComponents.Where(c => !c.ComponentIsLedDiode)
+                                                .Where(c => !c.Nc12.StartsWith("4010440"))
+                                                .Where(c => !c.Nc12.StartsWith("4010441"));
+            foreach (var component in removedLedAndPcb)
             {
-                using (var cmd = conn.CreateCommand())
+                otherComponentsList.Add(new OtherComponentsStruct
                 {
-                    //cmd.Parameters.AddWithValue("@smtLine", GlobalParameters.SmtLine);
-                    cmd.Connection.ConnectionString = connectionString;
-                    cmd.CommandText = query;
-                    cmd.CommandTimeout = 20;
-                    conn.Open();
-                    using (SqlDataReader rdr = cmd.ExecuteReader())
-                    {
-                        while (rdr.Read())
-                        {
-                            string nc12 = MST.MES.SqlTools.SafeGetString(rdr, "NC12");
-                            string loc = MST.MES.SqlTools.SafeGetString(rdr, "Z_RegSeg");
-                            if (loc != GlobalParameters.SmtLine) continue;
-                            if (!nc12.StartsWith("4010")) continue;
-                            if (nc12.StartsWith("4010560")) continue;
-                            if (nc12.StartsWith("4010460")) continue;
-                            if (nc12.StartsWith("4010441")) continue;
-                            if (nc12.StartsWith("4010440")) continue;
-
-                            OtherComponentsStruct newComp = new OtherComponentsStruct
-                            {
-                                Nc12 = nc12,
-                                Id = SqlTools.SafeGetString(rdr, "ID"),
-                                Qty = SqlTools.SafeGetString(rdr, "Ilosc"),
-                                Date = SqlTools.SafeGetDateTime(rdr, "Data_Czas").ToString("dd-MM-yyyy")
-                            };
-                            result.Add(newComp);
-                        }
-                    }
-                }
+                    Nc12 = component.Nc12,
+                    Id = component.Id,
+                    Date = component.operationDate.ToString(),
+                    Qty = component.Quantity.ToString()
+                }) ;
             }
-            otherComponentsList= result;
+            otherComponentsList = result;
         }
 
         public static void CheckComponentsAvailabilityForCurrentOder()

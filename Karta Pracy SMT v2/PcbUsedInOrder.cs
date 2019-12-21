@@ -82,21 +82,23 @@ namespace Karta_Pracy_SMT_v2
                 return false;
             }
 
-            DataTable reelTable = MST.MES.SqlOperations.SparingLedInfo.GetInfoFor12NC_ID(nc12, id);
-            if (reelTable.Rows.Count == 0)
+            //DataTable reelTable = MST.MES.SqlOperations.SparingLedInfo.GetInfoFor12NC_ID(nc12, id);
+            var pcbFromGraffiti = Graffiti.MST.ComponentsTools.GetDbData.GetComponentData($"{nc12}|ID:{id}");
+            if (pcbFromGraffiti == null)
             {
                 MessageBox.Show("Brak informacji o tym kodzie w bazie danych.");
                 return false;
             }
-            if(reelTable.Rows[0]["Z_RegSeg"].ToString().ToUpper() == "VERTE")
-            {
-                MessageBox.Show("Ten komponent nie został przyjęty na wejsciu do produkcji.");
-                return false;
-            }
+            //Graffiti needs new rule
+            //if(reelTable.Rows[0]["Z_RegSeg"].ToString().ToUpper() == "VERTE")
+            //{
+            //    MessageBox.Show("Ten komponent nie został przyjęty na wejsciu do produkcji.");
+            //    return false;
+            //}
 
 
-            int qty = int.Parse(reelTable.Rows[0]["Ilosc"].ToString());
-            string location = reelTable.Rows[0]["Z_RegSeg"].ToString();
+            int qty = (int)pcbFromGraffiti.Quantity;
+            string location = pcbFromGraffiti.Location;
             //AddLedToListView(nc12, id, qty, binId);
             AddPcbToList(nc12, id, qty, location);
             return true;
@@ -126,8 +128,10 @@ namespace Karta_Pracy_SMT_v2
                 return;
             }
 
-            MST.MES.SqlOperations.SparingLedInfo.UpdateLedQuantity(nc12, id, "0");
-            MST.MES.SqlOperations.SparingLedInfo.UpdateLedLocation(nc12, id, "KOSZ");
+            //MST.MES.SqlOperations.SparingLedInfo.UpdateLedQuantity(nc12, id, "0");
+            Graffiti.MST.ComponentsTools.UpdateDbData.UpdateComponentQty($"{nc12}|ID:{id}", 0);
+            //MST.MES.SqlOperations.SparingLedInfo.UpdateLedLocation(nc12, id, "KOSZ");
+            Graffiti.MST.ComponentsTools.UpdateDbData.UpdateComponentLocation($"{nc12}|ID:{id}", "KOSZ");
             items.First().QtyNew = 0;
             items.First().Qty = 0; //both = 0 meaning saved to db.
             olvPcbUsed.UpdateObject(items.First());

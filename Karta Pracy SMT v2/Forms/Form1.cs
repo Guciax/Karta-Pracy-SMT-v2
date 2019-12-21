@@ -21,7 +21,6 @@ namespace Karta_Pracy_SMT_v2
         public Form1()
         {
             //3400927164
-
             InitializeComponent();
             OrdersHistory.dgvOrders = dgvOrders;
             CurrentMstOrder.lvOrderInfo = lfOrderInfo;
@@ -124,7 +123,8 @@ namespace Karta_Pracy_SMT_v2
                     if (scanForm.ShowDialog() == DialogResult.OK)
                     {
                         LedsUsed.AddNewLed(scanForm.nc12, scanForm.id);
-                        MST.MES.SqlOperations.SparingLedInfo.UpdateLedLocation(scanForm.nc12, scanForm.id, GlobalParameters.SmtLine);
+                        //MST.MES.SqlOperations.SparingLedInfo.UpdateLedLocation(scanForm.nc12, scanForm.id, GlobalParameters.SmtLine);
+                        Graffiti.MST.ComponentsTools.UpdateDbData.UpdateComponentLocation($"{scanForm.nc12}|ID:{scanForm.id}", GlobalParameters.SmtLine);
                     }
                 }
             }
@@ -220,7 +220,9 @@ namespace Karta_Pracy_SMT_v2
                 {
                     if (PcbUsedInOrder.AddNewPcb(scanForm.nc12, scanForm.id))
                     {
-                        MST.MES.SqlOperations.SparingLedInfo.UpdateLedZlecenieStringBinIdLocation(scanForm.nc12, scanForm.id, CurrentMstOrder.currentOrder.OrderNo, "A", GlobalParameters.SmtLine);
+                        //MST.MES.SqlOperations.SparingLedInfo.UpdateLedZlecenieStringBinIdLocation(scanForm.nc12, scanForm.id, CurrentMstOrder.currentOrder.OrderNo, "A", GlobalParameters.SmtLine);
+                        Graffiti.MST.ComponentsTools.UpdateDbData.BindComponentToOrderNumber($"{scanForm.nc12}|ID:{scanForm.id}", int.Parse(CurrentMstOrder.currentOrder.OrderNo));
+                        Graffiti.MST.ComponentsTools.UpdateDbData.UpdateComponentLocation($"{scanForm.nc12}|ID:{scanForm.id}", GlobalParameters.SmtLine);
                     }
                     //MST.MES.SqlOperations.SparingLedInfo.UpdateLedLocation(scanForm.nc12, scanForm.id, GlobalParameters.SmtLine);
                 }
@@ -487,6 +489,11 @@ namespace Karta_Pracy_SMT_v2
                     }
                 }
             }
+        }
+
+        private void label7_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

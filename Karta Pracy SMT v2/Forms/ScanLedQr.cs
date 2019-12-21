@@ -15,7 +15,7 @@ namespace Karta_Pracy_SMT_v2.Forms
     {
         public string nc12;
         public string id;
-
+        public string qrCode;
 
 
         public ScanLedQr()
@@ -39,11 +39,12 @@ namespace Karta_Pracy_SMT_v2.Forms
                     return;
                 }
 
-                string[] split = textBox1.Text.Split('\t');
-                if (split.Length > 4)
+                string[] split = textBox1.Text.Split(new string[] { "|ID:" }, StringSplitOptions.None);
+                if (split.Length == 2)
                 {
-                    id = split[5];
+                    id = split[1];
                     nc12 = split[0];
+                    qrCode = textBox1.Text;
                     this.DialogResult = DialogResult.OK;
                 }
                 else

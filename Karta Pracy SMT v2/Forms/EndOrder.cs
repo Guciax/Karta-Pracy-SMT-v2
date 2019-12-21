@@ -81,14 +81,16 @@ namespace Karta_Pracy_SMT_v2.Forms
                 foreach (var led in LedsUsed.ledsUsedList)
                 {
                     if (led.QtyNew > 0) continue;
-                    MST.MES.SqlOperations.SparingLedInfo.UpdateLedQuantity(led.Nc12, led.Id, "0");
+                    //MST.MES.SqlOperations.SparingLedInfo.UpdateLedQuantity(led.Nc12, led.Id, "0");
+                    Graffiti.MST.ComponentsTools.UpdateDbData.UpdateComponentQty($"{led.Nc12}|ID:{led.Id}", 0);
                 }
-
                 foreach (var pcb in PcbUsedInOrder.pcbUsedList)
                 {
                     if (pcb.QtyNew == pcb.Qty) continue;
-                    MST.MES.SqlOperations.SparingLedInfo.UpdateLedQuantity(pcb.Nc12, pcb.Id, pcb.QtyNew.ToString());
-                    MST.MES.SqlOperations.SparingLedInfo.UpdateLedLocation(pcb.Nc12, pcb.Id, pcb.OriginalLocation);
+                    //MST.MES.SqlOperations.SparingLedInfo.UpdateLedQuantity(pcb.Nc12, pcb.Id, pcb.QtyNew.ToString());
+                    Graffiti.MST.ComponentsTools.UpdateDbData.UpdateComponentQty($"{pcb.Nc12}|ID:{pcb.Id}", pcb.QtyNew);
+                    //MST.MES.SqlOperations.SparingLedInfo.UpdateLedLocation(pcb.Nc12, pcb.Id, pcb.OriginalLocation);
+                    Graffiti.MST.ComponentsTools.UpdateDbData.UpdateComponentLocation($"{pcb.Nc12}|ID:{pcb.Id}", pcb.OriginalLocation);
                 }
                 finalQty = int.Parse(lPcbQty.Text);
                 this.DialogResult = DialogResult.OK;
