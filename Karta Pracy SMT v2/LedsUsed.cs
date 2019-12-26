@@ -15,7 +15,7 @@ namespace Karta_Pracy_SMT_v2
     public class LedsUsed
     {
         public static ObjectListView olvLedsUsed;
-        public static List<LedsUsedStruct> ledsUsedList = new List<LedsUsedStruct>();
+        public static List<LedsUsedStruct> ledsUsedList { get; set; }
 
         public class LedsUsedStruct
         {
@@ -48,40 +48,31 @@ namespace Karta_Pracy_SMT_v2
 
         public static void DebugAddLed()
         {
-            AddLedToList("401056011381", "HZ2E-LKJ", "100001", 12000);
-            AddLedToList("401056011381", "HZ2E-LKJ", "100002", 12000);
-            AddLedToList("401056011381", "HZ2E-LKJ", "100003", 12000);
+            //AddLedToList("401056011381", "HZ2E-LKJ", "100001", 12000);
+            //AddLedToList("401056011381", "HZ2E-LKJ", "100002", 12000);
+            //AddLedToList("401056011381", "HZ2E-LKJ", "100003", 12000);
 
-            MoveLedToTrash("401056011381", "100001");
+            //MoveLedToTrash("401056011381", "100001");
         }
 
-        public static void AddNewLed(string collective12Nc, string id)
+        public static void AddNewLed(Graffiti.MST.ComponentsTools.ComponentStruct componentGraffitiData)
         {
-            if (ledsUsedList.Where(x => x.Nc12 == collective12Nc & x.QtyNew > 0).Count() > 2)
+            if (ledsUsedList.Where(x => x.Nc12 == componentGraffitiData.Nc12 & x.QtyNew > 0).Count() > 2)
             {
                 MessageBox.Show("Przenieś diody do kosza aby dodać nowe." + Environment.NewLine + "Max. 2 rolki w użyciu na każde 12NC diody.");
                 return;
             }
 
-            if(ledsUsedList.Where(x=>x.Nc12==collective12Nc & x.Id == id).Count() > 0)
+            if(ledsUsedList.Where(x=>x.Nc12== componentGraffitiData.Nc12 & x.Id == componentGraffitiData.Id).Count() > 0)
             {
-                MessageBox.Show("Ta dioda została już dodana." + Environment.NewLine + $"12NC: {collective12Nc}" + Environment.NewLine + $"ID: {id}");
+                MessageBox.Show("Ta dioda została już dodana." + Environment.NewLine + $"12NC: {componentGraffitiData.Nc12}" + Environment.NewLine + $"ID: {componentGraffitiData.Id}");
                 return;
             }
 
-            //DataTable reelTable = MST.MES.SqlOperations.SparingLedInfo.GetInfoFor12NC_ID(nc12, id);
-            var reelFromGraffiti = Graffiti.MST.ComponentsTools.GetDbData.GetComponentData($"{collective12Nc}|ID:{id}");
 
-            //if (reelTable.Rows.Count == 0)
-            if (reelFromGraffiti == null)
-            {
-                MessageBox.Show("Brak informacji tym kodzie w bazie danych.");
-                return;
-            }
-
-            string qty = reelFromGraffiti.Quantity.ToString();
-            string zlecenieString = reelFromGraffiti.ConnectedToOrder.ToString();
-            string rankId = reelFromGraffiti.Rank;
+            string qty = componentGraffitiData.Quantity.ToString();
+            string zlecenieString = componentGraffitiData.ConnectedToOrder.ToString();
+            string rankId = componentGraffitiData.Rank;
             
             if (zlecenieString != CurrentMstOrder.currentOrder.OrderNo & zlecenieString != CurrentMstOrder.currentOrder.KittingData.connectedOrder)
             {
@@ -89,7 +80,7 @@ namespace Karta_Pracy_SMT_v2
                 return;
             }
 
-            AddLedToList(collective12Nc, rankId, id, int.Parse(qty));
+            AddLedToList(componentGraffitiData.Nc12, rankId, componentGraffitiData.Id, int.Parse(qty));
         }
         private static void AddLedToList(string collective12Nc,string rank, string id, int qty)
         {

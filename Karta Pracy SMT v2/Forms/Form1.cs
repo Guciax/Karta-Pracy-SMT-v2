@@ -122,7 +122,7 @@ namespace Karta_Pracy_SMT_v2
                 {
                     if (scanForm.ShowDialog() == DialogResult.OK)
                     {
-                        LedsUsed.AddNewLed(scanForm.nc12, scanForm.id);
+                        LedsUsed.AddNewLed(scanForm.graffitiCompData);
                         //MST.MES.SqlOperations.SparingLedInfo.UpdateLedLocation(scanForm.nc12, scanForm.id, GlobalParameters.SmtLine);
                         Graffiti.MST.ComponentsTools.UpdateDbData.UpdateComponentLocation($"{scanForm.nc12}|ID:{scanForm.id}", GlobalParameters.SmtLine);
                     }
@@ -134,8 +134,9 @@ namespace Karta_Pracy_SMT_v2
         private void bMoveToTrash_Click(object sender, EventArgs e)
         {
             UpdateScreenSHot();
+            if (LedsUsed.ledsUsedList == null) return;
             if (LedsUsed.ledsUsedList.Count == 0) return;
-            using(ScanLedQr scanForm = new ScanLedQr())
+            using (ScanLedQr scanForm = new ScanLedQr())
             {
                 if(scanForm.ShowDialog() == DialogResult.OK)
                 {

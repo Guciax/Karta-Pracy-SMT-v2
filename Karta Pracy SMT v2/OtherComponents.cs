@@ -135,7 +135,9 @@ namespace Karta_Pracy_SMT_v2
         public static void GetOtherComponentsForSmtLineFromDb()
         {
             List<OtherComponentsStruct> result = new List<OtherComponentsStruct>();
-            var allComponents = Graffiti.MST.ComponentsTools.GetDbData.GetComponentsFromLocation(GlobalParameters.SmtLine);
+            var locations = Graffiti.MST.ComponentsTools.GetDbData.GetComponentsInLocations("EL:"+GlobalParameters.SmtLine);
+            var qrList = locations.SelectMany(x => x.Value).ToList();
+            var allComponents = Graffiti.MST.ComponentsTools.GetDbData.GetComponentDataWithAttributes(qrList);
             var removedLedAndPcb = allComponents.Where(c => !c.ComponentIsLedDiode)
                                                 .Where(c => !c.Nc12.StartsWith("4010440"))
                                                 .Where(c => !c.Nc12.StartsWith("4010441"));
@@ -147,7 +149,7 @@ namespace Karta_Pracy_SMT_v2
                     Id = component.Id,
                     Date = component.operationDate.ToString(),
                     Qty = component.Quantity.ToString()
-                }) ;
+                });
             }
             otherComponentsList = result;
         }

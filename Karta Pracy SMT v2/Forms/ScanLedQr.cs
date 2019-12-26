@@ -16,7 +16,7 @@ namespace Karta_Pracy_SMT_v2.Forms
         public string nc12;
         public string id;
         public string qrCode;
-
+        public Graffiti.MST.ComponentsTools.ComponentStruct graffitiCompData;
 
         public ScanLedQr()
         {
@@ -42,6 +42,13 @@ namespace Karta_Pracy_SMT_v2.Forms
                 string[] split = textBox1.Text.Split(new string[] { "|ID:" }, StringSplitOptions.None);
                 if (split.Length == 2)
                 {
+                    var dbData = Graffiti.MST.ComponentsTools.GetDbData.GetComponentDataWithAttributes(new List<string> { textBox1.Text });
+                    if (!dbData.Any())
+                    {
+                        MessageBox.Show("Brak danych tego komponentu w bazie Graffiti");
+                        return;
+                    }
+                    graffitiCompData = dbData.First();
                     id = split[1];
                     nc12 = split[0];
                     qrCode = textBox1.Text;
