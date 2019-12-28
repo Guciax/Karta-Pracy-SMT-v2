@@ -131,7 +131,7 @@ namespace Karta_Pracy_SMT_v2
             //MST.MES.SqlOperations.SparingLedInfo.UpdateLedQuantity(nc12, id, "0");
             Graffiti.MST.ComponentsTools.UpdateDbData.UpdateComponentQty($"{nc12}|ID:{id}", 0);
             //MST.MES.SqlOperations.SparingLedInfo.UpdateLedLocation(nc12, id, "KOSZ");
-            Graffiti.MST.ComponentsTools.UpdateDbData.UpdateComponentLocation($"{nc12}|ID:{id}", "KOSZ");
+            Graffiti.MST.ComponentsTools.UpdateDbData.UpdateComponentLocation($"{nc12}|ID:{id}", Graffiti.MST.ComponentsLocations.ComponentsTrash);
             items.First().QtyNew = 0;
             items.First().Qty = 0; //both = 0 meaning saved to db.
             olvPcbUsed.UpdateObject(items.First());

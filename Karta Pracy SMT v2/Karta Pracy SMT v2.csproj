@@ -88,6 +88,7 @@
   <ItemGroup>
     <Compile Include="BlurredBackground.cs" />
     <Compile Include="ChangeOver.cs" />
+    <Compile Include="ComponentsFromGraffiti.cs" />
     <Compile Include="DataStorage\ConnectedOrder.cs" />
     <Compile Include="DataStorage\CurrentMstOrder.cs" />
     <Compile Include="DataStorage\DevTools.cs" />

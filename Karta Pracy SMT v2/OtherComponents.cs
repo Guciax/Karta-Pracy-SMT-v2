@@ -25,7 +25,6 @@ namespace Karta_Pracy_SMT_v2
                     return "";
                 }
             }
-
             public string Nc12 { get; set; }
             public string Nc12_Formated
             {
@@ -43,10 +42,53 @@ namespace Karta_Pracy_SMT_v2
 
             public bool MatchesWithCurrentOrder { get; set; }
             public bool componentMissing = false;
+            /// <summary>
+            /// Jeżeli komponent został zmieniony w trakcie trwania zlecenia to dzieki temu rozliczymy odpad.
+            /// </summary>
+            public int QtyPreviouslyUsedReelInSameOrder = 0;
         }
-
         public static List<OtherComponentsStruct> otherComponentsList = new List<OtherComponentsStruct>();
-
+        public static class CurrentOrderRequirements
+        {
+            private static string _CheckedForOrder;
+            public static string CheckedForOrder 
+            {
+                get
+                {
+                    return _CheckedForOrder;
+                }
+                set
+                {
+                    previousReelQty = new Dictionary<string, int>();
+                    _CheckedForOrder = value;
+                } 
+            }
+            private static string[] _componentsList { get; set; }
+            public static string[] componentsList 
+            { 
+                get
+                {
+                    if (CurrentMstOrder.currentOrder.OrderNo == null) return new string[] { };
+                    if(CheckedForOrder == null)
+                    {
+                        _componentsList = DevTools.OtherComponentsForCurrentOrder.GetOtherComp12Nc();
+                        CheckedForOrder = CurrentMstOrder.currentOrder.OrderNo;
+                        return _componentsList;
+                    }
+                    if (CheckedForOrder != CurrentMstOrder.currentOrder.OrderNo)
+                    {
+                        _componentsList = DevTools.OtherComponentsForCurrentOrder.GetOtherComp12Nc();
+                        CheckedForOrder = CurrentMstOrder.currentOrder.OrderNo;
+                        return _componentsList;
+                    }
+                    return _componentsList;
+                } 
+            }
+        }
+        /// <summary>
+        /// key = 12NCID
+        /// </summary>
+        public static Dictionary<string, int> previousReelQty = new Dictionary<string, int>();
         public static void UpdateList()
         {
             CheckComponentsAvailabilityForCurrentOder();
@@ -65,8 +107,8 @@ namespace Karta_Pracy_SMT_v2
                 MessageBox.Show("Ten komponent już jest na liście");
                 return;
             }
-
             var existingComponents = otherComponentsList.Where(x => x.Nc12 == nc12 & !x.componentMissing);
+            int existingCompQty = 0;
             if (existingComponents.Count() > 0) 
             {
                 string message = "Obecnie używany komponent musi zostać przesunięty do KOSZA aby dodać nowy."
@@ -81,6 +123,11 @@ namespace Karta_Pracy_SMT_v2
                     foreach (var oldComp in existingComponents)
                     {
                         MoveComponentToTrash(oldComp.Nc12, oldComp.Id);
+                        existingCompQty = int.Parse(oldComp.Qty);
+                        if (previousReelQty.ContainsKey($"{oldComp.Nc12}{oldComp.Id}"))
+                        {
+                            previousReelQty.Add($"{oldComp.Nc12}{oldComp.Id}", existingCompQty);
+                        }
                     }
                 }
                 else if (dialogResult == DialogResult.No)
@@ -105,10 +152,10 @@ namespace Karta_Pracy_SMT_v2
             //MST.MES.SqlOperations.SparingLedInfo.UpdateLedQuantity(nc12, id, "0");
             Graffiti.MST.ComponentsTools.UpdateDbData.UpdateComponentQty($"{nc12}|ID:{id}", 0);
             //MST.MES.SqlOperations.SparingLedInfo.UpdateLedLocation(nc12, id, "KOSZ");
-            Graffiti.MST.ComponentsTools.UpdateDbData.UpdateComponentLocation($"{nc12}|ID:{id}", "KOSZ");
-            
+            Graffiti.MST.ComponentsTools.UpdateDbData.UpdateComponentLocation($"{nc12}|ID:{id}", Graffiti.MST.ComponentsLocations.ComponentsTrash);
+
+            GetOtherComponentsForSmtLineFromDb();
             UpdateList();
-            olvOtherComponents.SetObjects(otherComponentsList);
         }
 
         public static void MoveComponentToStorage(string nc12, string id)
@@ -127,28 +174,29 @@ namespace Karta_Pracy_SMT_v2
                 return;
             }
 
-            Graffiti.MST.ComponentsTools.UpdateDbData.UpdateComponentLocation($"{nc12}|ID:{id}", Graffiti.MST.ComponentsTools.GetComponentDefaultLocation(nc12));
+            Graffiti.MST.ComponentsTools.UpdateDbData.UpdateComponentLocation($"{nc12}|ID:{id}", Graffiti.MST.ComponentsLocations.GetComponentDefaultLocation(nc12));
+            GetOtherComponentsForSmtLineFromDb();
             UpdateList();
-            olvOtherComponents.SetObjects(otherComponentsList);
         }
 
-        public static void GetOtherComponentsForSmtLineFromDb()
+        public static async void GetOtherComponentsForSmtLineFromDb()
         {
             List<OtherComponentsStruct> result = new List<OtherComponentsStruct>();
-            var locations = Graffiti.MST.ComponentsTools.GetDbData.GetComponentsInLocations("EL:"+GlobalParameters.SmtLine);
-            var qrList = locations.SelectMany(x => x.Value).ToList();
-            var allComponents = Graffiti.MST.ComponentsTools.GetDbData.GetComponentDataWithAttributes(qrList);
-            var removedLedAndPcb = allComponents.Where(c => !c.ComponentIsLedDiode)
-                                                .Where(c => !c.Nc12.StartsWith("4010440"))
-                                                .Where(c => !c.Nc12.StartsWith("4010441"));
-            foreach (var component in removedLedAndPcb)
+            await ComponentsFromGraffiti.LoadComponentsAsync();
+            foreach (var component in ComponentsFromGraffiti.thisLineOtherComponents)
             {
+                int prevReelQty = 0;
+                if (previousReelQty.ContainsKey($"{component.Nc12}{component.Id}"))
+                {
+                    prevReelQty = previousReelQty[$"{component.Nc12}{component.Id}"];
+                }
                 otherComponentsList.Add(new OtherComponentsStruct
                 {
                     Nc12 = component.Nc12,
                     Id = component.Id,
                     Date = component.operationDate.ToString(),
-                    Qty = component.Quantity.ToString()
+                    Qty = component.Quantity.ToString(),
+                    QtyPreviouslyUsedReelInSameOrder = prevReelQty
                 });
             }
             otherComponentsList = result;
@@ -156,13 +204,11 @@ namespace Karta_Pracy_SMT_v2
 
         public static void CheckComponentsAvailabilityForCurrentOder()
         {
-            var requiredOtherComps = DevTools.OtherComponentsForCurrentOrder.GetOtherComp12Nc();
-            var notFoundList = requiredOtherComps.Except(otherComponentsList.Select(c => c.Nc12));
+            var notFoundList = CurrentOrderRequirements.componentsList.Except(otherComponentsList.Select(c => c.Nc12));
 
             foreach (var comp in otherComponentsList)
             {
-                comp.MatchesWithCurrentOrder = requiredOtherComps.Contains(comp.Nc12);
-                
+                comp.MatchesWithCurrentOrder = CurrentOrderRequirements.componentsList.Contains(comp.Nc12);
             }
 
             foreach (var missingComp in notFoundList)
