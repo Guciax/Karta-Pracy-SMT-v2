@@ -74,8 +74,11 @@ namespace Karta_Pracy_SMT_v2
             //MovePcbToTrash("401044101312", "100060");
         }
 
-        public static bool AddNewPcb(string nc12, string id)
+        public static bool AddNewPcb(Graffiti.MST.ComponentsTools.ComponentStruct compFromGraffiti)
         {
+            string nc12 = compFromGraffiti.Nc12;
+            string id = compFromGraffiti.Id;
+
             if(pcbUsedList.Where(x=>x.Nc12 == nc12 & x.Id == id).Count() > 0)
             {
                 MessageBox.Show("Ta płyta PCB została już dodana." + Environment.NewLine + $"12NC: {nc12}" + Environment.NewLine + $"ID: {id}");
@@ -83,12 +86,13 @@ namespace Karta_Pracy_SMT_v2
             }
 
             //DataTable reelTable = MST.MES.SqlOperations.SparingLedInfo.GetInfoFor12NC_ID(nc12, id);
-            var pcbFromGraffiti = Graffiti.MST.ComponentsTools.GetDbData.GetComponentData($"{nc12}|ID:{id}");
-            if (pcbFromGraffiti == null)
+            //var pcbFromGraffiti = Graffiti.MST.ComponentsTools.GetDbData.GetComponentData($"{nc12}|ID:{id}");
+            if (compFromGraffiti == null) 
             {
                 MessageBox.Show("Brak informacji o tym kodzie w bazie danych.");
                 return false;
             }
+
             //Graffiti needs new rule
             //if(reelTable.Rows[0]["Z_RegSeg"].ToString().ToUpper() == "VERTE")
             //{
@@ -96,9 +100,8 @@ namespace Karta_Pracy_SMT_v2
             //    return false;
             //}
 
-
-            int qty = (int)pcbFromGraffiti.Quantity;
-            string location = pcbFromGraffiti.Location;
+            int qty = (int)compFromGraffiti.Quantity;
+            string location = compFromGraffiti.Location;
             //AddLedToListView(nc12, id, qty, binId);
             AddPcbToList(nc12, id, qty, location);
             return true;

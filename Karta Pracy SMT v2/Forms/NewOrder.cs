@@ -42,7 +42,10 @@ namespace Karta_Pracy_SMT_v2.Forms
             ShowOrdersQueue();
 
             await UserDb.GetUsersFromDbAsync();
-            
+            if (GlobalParameters.Debug)
+            {
+                tbOperatorCardId.Text = "3400927164";
+            }
         }
 
         private void ShowOrdersQueue()
@@ -252,7 +255,7 @@ namespace Karta_Pracy_SMT_v2.Forms
         {
             if(e.KeyCode == Keys.Return)
             {
-                if(KeyboardDeviceListener.lastInputDeviceName != GlobalParameters.QrReaderName)
+                if(!GlobalParameters.Debug & KeyboardDeviceListener.lastInputDeviceName != GlobalParameters.QrReaderName)
                 {
                     MessageBox.Show("Użyj czytnika!");
                     tbStencil.Text = "";

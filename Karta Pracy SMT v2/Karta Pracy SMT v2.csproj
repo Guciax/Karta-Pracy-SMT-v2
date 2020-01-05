@@ -160,6 +160,8 @@
       <DependentUpon>UpdateOrderQuantity.cs</DependentUpon>
     </Compile>
     <Compile Include="LedCollectiveDb.cs" />
+    <Compile Include="DataStorage\LedDiodesForCurrentOrder.cs" />
+    <Compile Include="ComponentsKittedForCurrentOrder.cs" />
     <Compile Include="LedsUsed.cs" />
     <Compile Include="OtherComponents.cs" />
     <Compile Include="PanelDoubleBuffered.cs">

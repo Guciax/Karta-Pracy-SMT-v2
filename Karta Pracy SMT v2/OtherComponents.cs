@@ -68,7 +68,7 @@ namespace Karta_Pracy_SMT_v2
             { 
                 get
                 {
-                    if (CurrentMstOrder.currentOrder.OrderNo == null) return new string[] { };
+                    if (CurrentMstOrder.currentOrder == null) return new string[] { };
                     if(CheckedForOrder == null)
                     {
                         _componentsList = DevTools.OtherComponentsForCurrentOrder.GetOtherComp12Nc();

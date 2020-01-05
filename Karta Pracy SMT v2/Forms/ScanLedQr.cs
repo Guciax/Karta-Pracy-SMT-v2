@@ -16,11 +16,13 @@ namespace Karta_Pracy_SMT_v2.Forms
         public string nc12;
         public string id;
         public string qrCode;
-        public Graffiti.MST.ComponentsTools.ComponentStruct graffitiCompData;
+        public Graffiti.MST.ComponentsTools.ComponentStruct graffitiCompData = null;
+        private readonly bool getDbData;
 
-        public ScanLedQr()
+        public ScanLedQr(bool getDbData)
         {
             InitializeComponent();
+            this.getDbData = getDbData;
         }
 
         private void textBox1_Leave(object sender, EventArgs e)
@@ -32,33 +34,43 @@ namespace Karta_Pracy_SMT_v2.Forms
         {
             if(e.KeyCode == Keys.Return)
             {
-                if(KeyboardDeviceListener.lastInputDeviceName!= GlobalParameters.QrReaderName)
+                if(!GlobalParameters.Debug & KeyboardDeviceListener.lastInputDeviceName!= GlobalParameters.QrReaderName)
                 {
                     MessageBox.Show("Użytj czytnika QR.");
                     textBox1.Text = "";
                     return;
                 }
-
-                string[] split = textBox1.Text.Split(new string[] { "|ID:" }, StringSplitOptions.None);
-                if (split.Length == 2)
+                string universalQrCode = textBox1.Text;
+                if (textBox1.Text.Contains("|"))
                 {
-                    var dbData = Graffiti.MST.ComponentsTools.GetDbData.GetComponentDataWithAttributes(new List<string> { textBox1.Text });
-                    if (!dbData.Any())
+                    string[] split = textBox1.Text.Split(new string[] { "|ID:" }, StringSplitOptions.None);
+                    if (split.Length != 2)
                     {
-                        MessageBox.Show("Brak danych tego komponentu w bazie Graffiti");
+                        MessageBox.Show("Niepoprawny kod QR" + Environment.NewLine + textBox1.Text);
+                        textBox1.Text = "";
                         return;
                     }
-                    graffitiCompData = dbData.First();
                     id = split[1];
                     nc12 = split[0];
-                    qrCode = textBox1.Text;
-                    this.DialogResult = DialogResult.OK;
                 }
                 else
                 {
-                    MessageBox.Show("Niepoprawny kod QR" + Environment.NewLine + textBox1.Text);
-                    textBox1.Text = "";
+                    var oldQrCode = MST.MES.QrCode.DecodeQrCode(textBox1.Text);
+                    if(oldQrCode == null)
+                    {
+                        MessageBox.Show("Niepoprawny kod QR" + Environment.NewLine + textBox1.Text);
+                        textBox1.Text = "";
+                        return;
+                    }
+                    universalQrCode = $"{oldQrCode.Nc12}|ID:{oldQrCode.Id}";
+                    nc12 = oldQrCode.Nc12;
+                    id = oldQrCode.Id;
                 }
+
+                graffitiCompData = Graffiti.MST.ComponentsTools.GetDbData.GetComponentData(universalQrCode);
+                
+                qrCode = textBox1.Text;
+                this.DialogResult = DialogResult.OK;
             }
         }
 

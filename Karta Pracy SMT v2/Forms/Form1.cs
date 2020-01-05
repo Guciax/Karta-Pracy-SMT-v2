@@ -103,6 +103,9 @@ namespace Karta_Pracy_SMT_v2
                     {
                         ChangeOver.StartChangeOver();
                     }
+
+                    ComponentsKittedForCurrentOrder.Reload();
+
                 }
                 if (GlobalParameters.Debug)
                 {
@@ -115,16 +118,17 @@ namespace Karta_Pracy_SMT_v2
 
         private void bAddLedQr_Click(object sender, EventArgs e)
         {
+            LedDiodesForCurrentOrder.ReloadList();
             UpdateScreenSHot();
             if (CurrentMstOrder.currentOrder != null)
             {
-                using (ScanLedQr scanForm = new ScanLedQr())
+                using (ScanLedQr scanForm = new ScanLedQr(true))
                 {
                     if (scanForm.ShowDialog() == DialogResult.OK)
                     {
                         LedsUsed.AddNewLed(scanForm.graffitiCompData);
                         //MST.MES.SqlOperations.SparingLedInfo.UpdateLedLocation(scanForm.nc12, scanForm.id, GlobalParameters.SmtLine);
-                        Graffiti.MST.ComponentsTools.UpdateDbData.UpdateComponentLocation($"{scanForm.nc12}|ID:{scanForm.id}", GlobalParameters.SmtLine);
+                        //Graffiti.MST.ComponentsTools.UpdateDbData.UpdateComponentLocation(scanForm.graffitiCompData.QrCode,Graffiti.MST.ComponentsLocations.LineNumberToLocation( GlobalParameters.SmtLine));
                     }
                 }
             }
@@ -136,7 +140,7 @@ namespace Karta_Pracy_SMT_v2
             UpdateScreenSHot();
             if (LedsUsed.ledsUsedList == null) return;
             if (LedsUsed.ledsUsedList.Count == 0) return;
-            using (ScanLedQr scanForm = new ScanLedQr())
+            using (ScanLedQr scanForm = new ScanLedQr(false))
             {
                 if(scanForm.ShowDialog() == DialogResult.OK)
                 {
@@ -215,15 +219,15 @@ namespace Karta_Pracy_SMT_v2
                 return;
             }
 
-            using (ScanLedQr scanForm = new ScanLedQr())
+            using (ScanLedQr scanForm = new ScanLedQr(true))
             {
                 if (scanForm.ShowDialog() == DialogResult.OK)
                 {
-                    if (PcbUsedInOrder.AddNewPcb(scanForm.nc12, scanForm.id))
+                    if (PcbUsedInOrder.AddNewPcb(scanForm.graffitiCompData))
                     {
                         //MST.MES.SqlOperations.SparingLedInfo.UpdateLedZlecenieStringBinIdLocation(scanForm.nc12, scanForm.id, CurrentMstOrder.currentOrder.OrderNo, "A", GlobalParameters.SmtLine);
-                        Graffiti.MST.ComponentsTools.UpdateDbData.BindComponentToOrderNumber($"{scanForm.nc12}|ID:{scanForm.id}", int.Parse(CurrentMstOrder.currentOrder.OrderNo));
-                        Graffiti.MST.ComponentsTools.UpdateDbData.UpdateComponentLocation($"{scanForm.nc12}|ID:{scanForm.id}", GlobalParameters.SmtLine);
+                        Graffiti.MST.ComponentsTools.UpdateDbData.BindComponentToOrderNumber($"{scanForm.nc12}|ID:{scanForm.id}", CurrentMstOrder.currentOrder.KittingData.GraffitiOrderNo.PrimaryKey_00);
+                        Graffiti.MST.ComponentsTools.UpdateDbData.UpdateComponentLocation($"{scanForm.nc12}|ID:{scanForm.id}", Graffiti.MST.ComponentsLocations.LineNumberToLocation( GlobalParameters.SmtLine));
                     }
                     //MST.MES.SqlOperations.SparingLedInfo.UpdateLedLocation(scanForm.nc12, scanForm.id, GlobalParameters.SmtLine);
                 }
@@ -234,7 +238,7 @@ namespace Karta_Pracy_SMT_v2
         {
             UpdateScreenSHot();
             if (PcbUsedInOrder.pcbUsedList.Count == 0) return;
-            using (ScanLedQr scanForm = new ScanLedQr())
+            using (ScanLedQr scanForm = new ScanLedQr(false))
             {
                 if (scanForm.ShowDialog() == DialogResult.OK)
                 {
@@ -298,7 +302,7 @@ namespace Karta_Pracy_SMT_v2
         private void bOtherComponentsAdd_Click(object sender, EventArgs e)
         {
             UpdateScreenSHot();
-            using (ScanLedQr scanForm = new ScanLedQr())
+            using (ScanLedQr scanForm = new ScanLedQr(false))
             {
                 if(scanForm.ShowDialog() == DialogResult.OK)
                 {
@@ -333,7 +337,7 @@ namespace Karta_Pracy_SMT_v2
         private void bOtherComponentsTrash_Click(object sender, EventArgs e)
         {
             UpdateScreenSHot();
-            using (ScanLedQr scanForm = new ScanLedQr())
+            using (ScanLedQr scanForm = new ScanLedQr(false))
             {
                 if (scanForm.ShowDialog() == DialogResult.OK)
                 {
@@ -345,7 +349,7 @@ namespace Karta_Pracy_SMT_v2
         private void bMoveToStorage_Click(object sender, EventArgs e)
         {
             UpdateScreenSHot();
-            using (ScanLedQr scanForm = new ScanLedQr())
+            using (ScanLedQr scanForm = new ScanLedQr(false))
             {
                 if (scanForm.ShowDialog() == DialogResult.OK)
                 {

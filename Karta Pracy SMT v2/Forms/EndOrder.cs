@@ -80,10 +80,10 @@ namespace Karta_Pracy_SMT_v2.Forms
             {
                 foreach (var led in LedsUsed.ledsUsedList)
                 {
-                    if (led.QtyNew > 0) continue;
+                    //if (led.QtyNew > 0) continue;
                     //MST.MES.SqlOperations.SparingLedInfo.UpdateLedQuantity(led.Nc12, led.Id, "0");
-                    Graffiti.MST.ComponentsTools.UpdateDbData.UpdateComponentQty($"{led.Nc12}|ID:{led.Id}", 0);
-                    Location KOSZ??????
+                    //Graffiti.MST.ComponentsTools.UpdateDbData.UpdateComponentQty($"{led.Nc12}|ID:{led.Id}", 0);
+                    //In Graffiti - do nothing!
                 }
                 foreach (var pcb in PcbUsedInOrder.pcbUsedList)
                 {

@@ -57,7 +57,7 @@ namespace Karta_Pracy_SMT_v2
 
         public static void AddNewLed(Graffiti.MST.ComponentsTools.ComponentStruct componentGraffitiData)
         {
-            if (ledsUsedList.Where(x => x.Nc12 == componentGraffitiData.Nc12 & x.QtyNew > 0).Count() > 2)
+            if (ledsUsedList.Where(x => x.Nc12 == componentGraffitiData.Nc12 & x.QtyNew > 0).Count() > 6)
             {
                 MessageBox.Show("Przenieś diody do kosza aby dodać nowe." + Environment.NewLine + "Max. 2 rolki w użyciu na każde 12NC diody.");
                 return;
@@ -69,17 +69,19 @@ namespace Karta_Pracy_SMT_v2
                 return;
             }
 
-
-            string qty = componentGraffitiData.Quantity.ToString();
-            string zlecenieString = componentGraffitiData.ConnectedToOrder.ToString();
-            string rankId = componentGraffitiData.Rank;
-            
-            if (zlecenieString != CurrentMstOrder.currentOrder.OrderNo & zlecenieString != CurrentMstOrder.currentOrder.KittingData.connectedOrder)
+            var ledsConnectedToOrderMatchingThisReel = LedDiodesForCurrentOrder.LedDiodesList.Where(led => led.QrCode == componentGraffitiData.QrCode);
+            if (!ledsConnectedToOrderMatchingThisReel.Any())
             {
-                MessageBox.Show($"Ta dioda aktualnie przypisana jest do zlecenia: {zlecenieString}");
+                MessageBox.Show($"Ta dioda nie aktualnie przypisana jest do tego zlecenia.");
                 return;
             }
 
+            var machnigKittedReel = ledsConnectedToOrderMatchingThisReel.First();
+            componentGraffitiData.Quantity = machnigKittedReel.Quantity;
+
+            string qty = componentGraffitiData.Quantity.ToString();
+            string rankId = componentGraffitiData.Rank;
+            
             AddLedToList(componentGraffitiData.Nc12, rankId, componentGraffitiData.Id, int.Parse(qty));
         }
         private static void AddLedToList(string collective12Nc,string rank, string id, int qty)
@@ -104,7 +106,6 @@ namespace Karta_Pracy_SMT_v2
                 MessageBox.Show("Brak rolki LED na liście dodanych.");
                 return;
             }
-
             items.First().QtyNew = 0;
             olvLedsUsed.UpdateObject(items.First());
         }
