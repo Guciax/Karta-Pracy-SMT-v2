@@ -226,8 +226,8 @@ namespace Karta_Pracy_SMT_v2
                     if (PcbUsedInOrder.AddNewPcb(scanForm.graffitiCompData))
                     {
                         //MST.MES.SqlOperations.SparingLedInfo.UpdateLedZlecenieStringBinIdLocation(scanForm.nc12, scanForm.id, CurrentMstOrder.currentOrder.OrderNo, "A", GlobalParameters.SmtLine);
-                        Graffiti.MST.ComponentsTools.UpdateDbData.BindComponentToOrderNumber($"{scanForm.nc12}|ID:{scanForm.id}", CurrentMstOrder.currentOrder.KittingData.GraffitiOrderNo.PrimaryKey_00);
-                        Graffiti.MST.ComponentsTools.UpdateDbData.UpdateComponentLocation($"{scanForm.nc12}|ID:{scanForm.id}", Graffiti.MST.ComponentsLocations.LineNumberToLocation( GlobalParameters.SmtLine));
+                        //Graffiti.MST.ComponentsTools.UpdateDbData.BindComponentToOrderNumber($"{scanForm.nc12}|ID:{scanForm.id}", CurrentMstOrder.currentOrder.KittingData.GraffitiOrderNo.PrimaryKey_00);
+                        //Graffiti.MST.ComponentsTools.UpdateDbData.UpdateComponentLocation($"{scanForm.nc12}|ID:{scanForm.id}", Graffiti.MST.ComponentsLocations.LineNumberToLocation( GlobalParameters.SmtLine));
                     }
                     //MST.MES.SqlOperations.SparingLedInfo.UpdateLedLocation(scanForm.nc12, scanForm.id, GlobalParameters.SmtLine);
                 }

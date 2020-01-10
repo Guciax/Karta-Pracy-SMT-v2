@@ -76,7 +76,7 @@ namespace Karta_Pracy_SMT_v2.Forms
 
         private void bSave_Click(object sender, EventArgs e)
         {
-            try
+            //try
             {
                 foreach (var led in LedsUsed.ledsUsedList)
                 {
@@ -89,16 +89,21 @@ namespace Karta_Pracy_SMT_v2.Forms
                 {
                     if (pcb.QtyNew == pcb.Qty) continue;
                     //MST.MES.SqlOperations.SparingLedInfo.UpdateLedQuantity(pcb.Nc12, pcb.Id, pcb.QtyNew.ToString());
-                    Graffiti.MST.ComponentsTools.UpdateDbData.UpdateComponentQty($"{pcb.Nc12}|ID:{pcb.Id}", pcb.QtyNew);
+                    Graffiti.MST.ComponentsTools.UpdateDbData.BindComponentToOrderNumber($"{pcb.Nc12}|ID:{pcb.Id}", CurrentMstOrder.currentOrder.KittingData.GraffitiOrderNo.PrimaryKey_00);
+                    if(pcb.QtyNew > 0)
+                    {
+                        Graffiti.MST.ComponentsTools.UpdateDbData.UpdateComponentQty($"{pcb.Nc12}|ID:{pcb.Id}", pcb.QtyNew);
+                    }
+                    
                     //MST.MES.SqlOperations.SparingLedInfo.UpdateLedLocation(pcb.Nc12, pcb.Id, pcb.OriginalLocation);
-                    Graffiti.MST.ComponentsTools.UpdateDbData.UpdateComponentLocation($"{pcb.Nc12}|ID:{pcb.Id}", pcb.OriginalLocation);
+                    //Graffiti.MST.ComponentsTools.UpdateDbData.UpdateComponentLocation($"{pcb.Nc12}|ID:{pcb.Id}", pcb.OriginalLocation);
                 }
                 finalQty = int.Parse(lPcbQty.Text);
                 this.DialogResult = DialogResult.OK;
             }
-            catch
+            //catch
             {
-                MessageBox.Show("Błąd połączenia z bazą danych. Spróbuj ponownie za jakiś czas.");
+                //MessageBox.Show("Błąd połączenia z bazą danych. Spróbuj ponownie za jakiś czas.");
             }
         }
         

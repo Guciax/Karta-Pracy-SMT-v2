@@ -75,9 +75,9 @@ namespace Karta_Pracy_SMT_v2.DataStorage
                 {
                     lvOrderInfo.Items.Add(new ListViewItem(new[] { "Diody LED:" }));
                     Char binLetter = 'A';
-                    foreach (var led in _currentOrder.KittingData.ledsChoosenByPlanner)
+                    foreach (var led in _currentOrder.KittingData.LedChoosenStructList)
                     {
-                        lvOrderInfo.Items.Add(new ListViewItem(new[] { $"BIN{binLetter.ToString()}:", led.Insert(4," ").Insert(8," ") }));
+                        lvOrderInfo.Items.Add(new ListViewItem(new[] { $"BIN{binLetter.ToString()}:", led.CollectiveFormatedRank }));
                         binLetter++;
                     }
                 }
