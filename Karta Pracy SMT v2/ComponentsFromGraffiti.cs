@@ -9,7 +9,8 @@ namespace Karta_Pracy_SMT_v2
 {
     public class ComponentsFromGraffiti
     {
-        private static IEnumerable<ComponentStruct> allComponents;
+        
+        private static IEnumerable<ComponentStruct> allComponents { get; set; }
         public static IEnumerable<ComponentStruct> thisLineAllComponents
         {
             get

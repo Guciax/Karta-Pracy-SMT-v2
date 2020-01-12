@@ -1,4 +1,5 @@
-﻿using Karta_Pracy_SMT_v2.DataStorage;
+﻿using BrightIdeasSoftware;
+using Karta_Pracy_SMT_v2.DataStorage;
 using Karta_Pracy_SMT_v2.Efficiency;
 using Karta_Pracy_SMT_v2.Forms;
 using RawInput_dll;
@@ -33,6 +34,8 @@ namespace Karta_Pracy_SMT_v2
             KeyboardDeviceListener.rawinput.KeyPressed += KeyboardDeviceListener.rawinput_KeyPressed;
 
             OtherComponents.olvOtherComponents = olvOtherComponents;
+
+            olvLedsUsed.AlwaysGroupByColumn = olvLedsUsed.GetColumn(0);
         }
 
         private async void Form1_Load(object sender, EventArgs e)
@@ -69,6 +72,8 @@ namespace Karta_Pracy_SMT_v2
             lVersion.Text = $"ver. {fvi.FileVersion}";
 
             //CurrentShiftEfficiency.SpitOutEff();
+
+
         }
 
         private void tDataUpdates_Tick(object sender, EventArgs e)
@@ -255,11 +260,10 @@ namespace Karta_Pracy_SMT_v2
         private void olvLedsUsed_FormatRow(object sender, BrightIdeasSoftware.FormatRowEventArgs e)
         {
             var ledRecord = (LedsUsed.LedsUsedStruct)e.Model;
-            if (ledRecord.QtyNew == 0)
-            {
-                e.Item.BackColor = Color.Black;
-                e.Item.ForeColor = Color.White;
-            }
+
+            e.Item.BackColor = ledRecord.BackGround;
+            e.Item.ForeColor = ledRecord.ForeGround;
+            
         }
 
         private void olvPcbUsed_FormatRow(object sender, BrightIdeasSoftware.FormatRowEventArgs e)
@@ -496,6 +500,39 @@ namespace Karta_Pracy_SMT_v2
         private void label7_Click(object sender, EventArgs e)
         {
 
+        }
+
+        private void rbLedShowOnlyCurrent_CheckedChanged(object sender, EventArgs e)
+        {
+            if (rbLedShowAll.Checked)
+            {
+                olvLedsUsed.ModelFilter = null;
+            }
+            else
+            {
+                olvLedsUsed.ModelFilter = new ModelFilter(delegate (object x) {
+                    return ((LedsUsed.LedsUsedStruct)x).CurrentlyInUse;
+                });
+            }
+        }
+
+        private void olvLedsUsed_BeforeCreatingGroups(object sender, CreateGroupsEventArgs e)
+        {
+            e.Parameters.GroupComparer = new IComparer
+            {
+
+            };
+        }
+
+        private void olvLedsUsed_BeforeSorting(object sender, BeforeSortingEventArgs e)
+        {
+            // example sort based on the last letter of the object name
+            var s = new OLVColumn();
+            s.AspectGetter = (o) => ((LedsUsed.LedsUsedStruct)o).SortPriority;
+
+            olvLedsUsed.ListViewItemSorter = new ColumnComparer(
+                        s, SortOrder.Ascending, e.ColumnToSort, e.SortOrder);
+            e.Handled = true;
         }
     }
 }
