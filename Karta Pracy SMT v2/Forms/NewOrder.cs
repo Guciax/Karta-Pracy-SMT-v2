@@ -34,6 +34,8 @@ namespace Karta_Pracy_SMT_v2.Forms
 
         private async void NewOrder_Load(object sender, EventArgs e)
         {
+            DataStorage.KittingData.ReloadAsync();
+
             cbOperator.Items.AddRange(GetOperatorsArray(30));
             pbLoading.Parent = this;
             pbLoading.BringToFront();

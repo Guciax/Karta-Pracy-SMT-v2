@@ -31,11 +31,11 @@ namespace Karta_Pracy_SMT_v2
 
             public string qrCode
             {
-                get { return ConnectedComponentFromRw.qrCode; }
+                get { return ConnectedComponentFromRw.QrCode; }
             }
             public bool ComponentInTrash
             {
-                get { return ConnectedComponentFromRw.attributesCechy.InTrash; }
+                get { return ConnectedComponentFromRw.attributesCechy.InTrashBool; }
             }
             public string Nc12 { get { return ConnectedComponentFromRw.Nc12; } }
             public string Nc12_Formated { get { return ConnectedComponentFromRw.Nc12_Formated; } }
@@ -74,6 +74,7 @@ namespace Karta_Pracy_SMT_v2
                     return Color.White;
                 }
             }
+
             public Color ForeGround
             {
                 get
@@ -88,31 +89,48 @@ namespace Karta_Pracy_SMT_v2
         }
 
 
-        public static bool AddNewPcb(Graffiti.MST.ComponentsTools.ComponentStruct compFromGraffiti)
+        public static void AddNewPcb(Graffiti.MST.ComponentsTools.ComponentStruct compFromGraffiti)
         {
             string nc12 = compFromGraffiti.Nc12;
             string id = compFromGraffiti.Id;
-            var matchingPcbs = pcbUsedList.Where(p => p.qrCode == compFromGraffiti.qrCode);
+            var matchingPcbs = pcbUsedList.Where(p => p.qrCode == compFromGraffiti.QrCode);
 
 
             if(matchingPcbs.Any())
             {
                 MessageBox.Show("Ta płyta PCB została już dodana." + Environment.NewLine + $"12NC: {nc12}" + Environment.NewLine + $"ID: {id}");
-                return false;
+                return;
             }
 
             if (compFromGraffiti == null) 
             {
                 MessageBox.Show("Brak informacji o tym kodzie w bazie danych.");
-                return false;
+                return;
+            }
+
+            if(compFromGraffiti.DocumentSymbol == "Rw")
+            {
+                if(compFromGraffiti.ConnectedToOrder != DataStorage.CurrentMstOrder.currentOrder.KittingData.GraffitiOrderNo.PrimaryKey_00)
+                {
+                    var order = DataStorage.KittingData.KittingDict.Where(o => o.Value.GraffitiOrderNo.PrimaryKey_00 == compFromGraffiti.ConnectedToOrder);
+                    if (order.Any())
+                    {
+                        MessageBox.Show($"Ta płyta jest aktualnie przypisana do innego zlecenia." + Environment.NewLine
+                            + $"Numer zlecenia {order.First().Value.GraffitiOrderNo.PrimaryKey_46}" + Environment.NewLine
+                            + $" 12NC: {order.First().Value.modelId}");
+                        return;
+                    }
+                }
+                MessageBox.Show($"Ta płyta jest już przypisana do zlecenia {compFromGraffiti.ConnectedToOrder}.");
+                return;
             }
 
             int qty = (int)compFromGraffiti.Quantity;
             string location = compFromGraffiti.Location;
             //AddLedToListView(nc12, id, qty, binId);
 
-            Graffiti.MST.ComponentsTools.UpdateDbData.UpdateComponentLocation(compFromGraffiti.qrCode, Graffiti.MST.ComponentsLocations.LineNumberToLocation( GlobalParameters.SmtLine));
-            Graffiti.MST.ComponentsTools.UpdateDbData.BindComponentToOrderNumber(compFromGraffiti.qrCode, CurrentMstOrder.currentOrder.KittingData.GraffitiOrderNo.PrimaryKey_00);
+            Graffiti.MST.ComponentsTools.UpdateDbData.UpdateComponentLocation(compFromGraffiti.QrCode, Graffiti.MST.ComponentsLocations.LineNumberToLocation( GlobalParameters.SmtLine));
+            Graffiti.MST.ComponentsTools.UpdateDbData.BindComponentToOrderNumber(compFromGraffiti.QrCode, CurrentMstOrder.currentOrder.KittingData.GraffitiOrderNo.PrimaryKey_00);
             ComponentsOnRw.Refresh();
             olvPcbUsed.SetObjects(pcbUsedList);
         }

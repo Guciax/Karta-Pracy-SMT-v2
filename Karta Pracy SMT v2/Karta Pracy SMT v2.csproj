@@ -94,6 +94,7 @@
     <Compile Include="DataStorage\CurrentMstOrder.cs" />
     <Compile Include="DataStorage\DevTools.cs" />
     <Compile Include="DataStorage\GlobalParameters.cs" />
+    <Compile Include="DataStorage\KittingData.cs" />
     <Compile Include="DataStorage\MesData.cs" />
     <Compile Include="DataStorage\OrdersHistory.cs" />
     <Compile Include="DataStructures\MstOrder.cs" />
@@ -171,7 +172,7 @@
     <Compile Include="PcbUsedInOrder.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="QrReader.cs" />
+    <Compile Include="KeyboardDeviceListener.cs" />
     <Compile Include="SmtLineFile.cs" />
     <Compile Include="SqlOperations.cs" />
     <Compile Include="UserDb.cs" />
@@ -260,6 +261,10 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="License-LGPL.txt" />
+    <None Include="Resources\available gray.bmp" />
+    <None Include="Resources\available gray.png" />
+    <None Include="Resources\available white.png" />
+    <None Include="Resources\available black.png" />
     <None Include="Resources\cardScan.png" />
     <None Include="Resources\changeOver.png" />
     <None Include="Resources\regal.png" />

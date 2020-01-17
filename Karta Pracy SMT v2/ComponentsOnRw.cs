@@ -5,44 +5,49 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using static Graffiti.MST.ComponentsTools;
+using static Karta_Pracy_SMT_v2.LedsUsed;
 
 namespace Karta_Pracy_SMT_v2
 {
     public class ComponentsOnRw
     {
-        private static List<ComponentStruct> ComponentsOnRwCollection { get; set; }
+        private static IEnumerable<ComponentStruct> ComponentsOnRwCollection { get; set; }
         public static void ClearList()
         {
-            ComponentsOnRwCollection.Clear();
+            ComponentsOnRwCollection = null;
         }
-        public static List<ComponentStruct> LedCollection
+        public static IEnumerable<ComponentStruct> LedCollection
         {
             get
             {
                 if (ComponentsOnRwCollection == null) Refresh();
-                return ComponentsOnRwCollection.Where(c => c.ComponentIsLedDiode).Where(c => c.DocumentSymbol == "Rw").ToList();
+                //var ledsCol = ComponentsOnRwCollection.Where(c => c.ComponentIsLedDiode);
+                //var wl = ledsCol.ToList();
+                return ComponentsOnRwCollection.Where(c => c.ComponentIsLedDiode).Where(l => l.DocumentSymbol == "Rw");
             }
         }
-        public static List<ComponentStruct> PcbCollection
+        public static IEnumerable<ComponentStruct> PcbCollection
         {
             get
             {
                 if (ComponentsOnRwCollection == null) Refresh();
-                return ComponentsOnRwCollection.Where(c => c.componentType == ComponentType.PCB).ToList();
+                return ComponentsOnRwCollection.Where(c => c.componentType == ComponentType.PCB);
             }
         }
-        public static List<ComponentStruct> OtherComponentsCollection
+        public static IEnumerable<ComponentStruct> OtherComponentsCollection
         {
             get
             {
                 if (ComponentsOnRwCollection == null) Refresh();
-                return ComponentsOnRwCollection.Where(c => c.componentType == ComponentType.Connector || c.componentType == ComponentType.Resistor).ToList();
+                return ComponentsOnRwCollection.Where(c => c.componentType == ComponentType.Connector || c.componentType == ComponentType.Resistor);
             }
         }
 
         public static void Refresh()
         {
-            ComponentsOnRwCollection = Graffiti.MST.OrdersOperations.GetData.GetCompOnRwWithAttributes().ToList();
+            ComponentsOnRwCollection = Graffiti.MST.OrdersOperations.GetData.GetComponnetsConnectedToOrder(DataStorage.CurrentMstOrder.currentOrder.KittingData.GraffitiOrderNo.PrimaryKey_00).ToList();
+            LedsUsed.ledsUsedList = ComponentsOnRw.LedCollection.Select(x => new LedsUsedStruct { ConnectedComponentFromRwList = x }).ToList();
+            LedsUsed.RefreshLedUsedOlv();
         }
 
         public static void TrashComponent(string qrCode)
@@ -53,9 +58,13 @@ namespace Karta_Pracy_SMT_v2
                 MessageBox.Show("Brak komponentu na liście używanych");
                 return;
             }
-            ComponentStruct componentToTrash = matchingComponents().First();
-            componentToTrash.attributesCechy.InTrash = true;
-            Graffiti.MST.ComponentsTools.UpdateDbData.Trash(qrCode);
+            ComponentStruct componentToTrash = matchingComponents.First();
+            componentToTrash.attributesCechy.InTrashString = "KOSZ";
+            //string[,] arr = new string[1, 2];
+            //arr[0, 0] = "kosz";
+            //arr[0, 1] = "value";
+            //throw new NotImplementedException();
+            //Graffiti.MST.ComponentsTools.UpdateDbData.SetRolkaTablica(qrCode, arr);
         }
     }
 }

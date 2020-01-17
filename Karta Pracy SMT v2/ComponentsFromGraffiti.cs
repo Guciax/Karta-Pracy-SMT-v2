@@ -48,7 +48,7 @@ namespace Karta_Pracy_SMT_v2
 
             await new Task(() => locations = Graffiti.MST.ComponentsTools.GetDbData.GetComponentsInLocations(Graffiti.MST.ComponentsLocations.LineNumberToLocation(DataStorage.GlobalParameters.SmtLine)));
             var componentsList = locations.SelectMany(x => x.Value).Where(x => x.StartsWith("4010460") || x.StartsWith("4010560")).ToList();
-            await new Task(() => allComponents = Graffiti.MST.ComponentsTools.GetDbData.GetComponentDataWithAttributes(componentsList));
+            await new Task(() => allComponents = Graffiti.MST.ComponentsTools.GetDbData.GetComponentDataWithAttributes(componentsList.ToArray()));
         }
     }
 }

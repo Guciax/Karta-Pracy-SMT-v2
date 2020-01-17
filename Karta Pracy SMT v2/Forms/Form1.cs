@@ -35,7 +35,7 @@ namespace Karta_Pracy_SMT_v2
 
             OtherComponents.olvOtherComponents = olvOtherComponents;
 
-            olvLedsUsed.AlwaysGroupByColumn = olvLedsUsed.GetColumn(0);
+            //olvLedsUsed.AlwaysGroupByColumn = olvLedsUsed.GetColumn(0);
         }
 
         private async void Form1_Load(object sender, EventArgs e)
@@ -73,7 +73,10 @@ namespace Karta_Pracy_SMT_v2
 
             //CurrentShiftEfficiency.SpitOutEff();
 
-
+            //olvLedsUsed.CustomSorter = delegate (OLVColumn column, SortOrder order) {
+            //    this.olvLedsUsed.ListViewItemSorter = new ColumnComparer(
+            //            this.olvColSortPriority, SortOrder.Ascending, column, order);
+            //};
         }
 
         private void tDataUpdates_Tick(object sender, EventArgs e)
@@ -94,6 +97,7 @@ namespace Karta_Pracy_SMT_v2
         private void BNewOrder_Click(object sender, EventArgs e)
         {
             UpdateScreenSHot();
+            
             using (NewOrder newOrderForm = new NewOrder())
             {
                 if (newOrderForm.ShowDialog() == DialogResult.OK)
@@ -101,6 +105,7 @@ namespace Karta_Pracy_SMT_v2
                     OrdersHistory.ordersHistory.Add(newOrderForm.dialogResult);
                     CurrentMstOrder.currentOrder = OrdersHistory.ordersHistory.Where(o => o.OrderNo == newOrderForm.dialogResult.OrderNo).OrderByDescending(o => o.SmtData.smtStartDate).First();
                     LedsUsed.ClearList();
+                    ComponentsOnRw.Refresh();
                     PcbUsedInOrder.ClearList();
                     tbNg.Text = "0";
                     bFinishOrder.Enabled = true;
@@ -108,9 +113,7 @@ namespace Karta_Pracy_SMT_v2
                     {
                         ChangeOver.StartChangeOver();
                     }
-
                     ComponentsKittedForCurrentOrder.Reload();
-
                 }
                 if (GlobalParameters.Debug)
                 {
@@ -123,7 +126,7 @@ namespace Karta_Pracy_SMT_v2
 
         private void bAddLedQr_Click(object sender, EventArgs e)
         {
-            LedDiodesForCurrentOrder.ReloadList();
+            //LedDiodesForCurrentOrder.ReloadList();
             UpdateScreenSHot();
             if (CurrentMstOrder.currentOrder != null)
             {
@@ -144,12 +147,12 @@ namespace Karta_Pracy_SMT_v2
         {
             UpdateScreenSHot();
             if (LedsUsed.ledsUsedList == null) return;
-            if (LedsUsed.ledsUsedList.Count == 0) return;
+            if (LedsUsed.ledsUsedList.Count() == 0) return;
             using (ScanLedQr scanForm = new ScanLedQr(false))
             {
                 if(scanForm.ShowDialog() == DialogResult.OK)
                 {
-                    LedsUsed.MoveLedToTrash(scanForm.nc12, scanForm.id);
+                    LedsUsed.MoveLedToTrash(scanForm.qrCode);
                 }
             }
         }
@@ -228,7 +231,7 @@ namespace Karta_Pracy_SMT_v2
             {
                 if (scanForm.ShowDialog() == DialogResult.OK)
                 {
-                    if (PcbUsedInOrder.AddNewPcb(scanForm.graffitiCompData))
+                    PcbUsedInOrder.AddNewPcb(scanForm.graffitiCompData);
                     {
                         //MST.MES.SqlOperations.SparingLedInfo.UpdateLedZlecenieStringBinIdLocation(scanForm.nc12, scanForm.id, CurrentMstOrder.currentOrder.OrderNo, "A", GlobalParameters.SmtLine);
                         //Graffiti.MST.ComponentsTools.UpdateDbData.BindComponentToOrderNumber($"{scanForm.nc12}|ID:{scanForm.id}", CurrentMstOrder.currentOrder.KittingData.GraffitiOrderNo.PrimaryKey_00);
@@ -247,7 +250,7 @@ namespace Karta_Pracy_SMT_v2
             {
                 if (scanForm.ShowDialog() == DialogResult.OK)
                 {
-                    PcbUsedInOrder.MovePcbToTrash(scanForm.nc12, scanForm.id);
+                    PcbUsedInOrder.MovePcbToTrash(scanForm.qrCode);
                 }
             }
         }
@@ -518,21 +521,24 @@ namespace Karta_Pracy_SMT_v2
 
         private void olvLedsUsed_BeforeCreatingGroups(object sender, CreateGroupsEventArgs e)
         {
-            e.Parameters.GroupComparer = new IComparer
-            {
-
-            };
+            
         }
 
         private void olvLedsUsed_BeforeSorting(object sender, BeforeSortingEventArgs e)
         {
-            // example sort based on the last letter of the object name
-            var s = new OLVColumn();
-            s.AspectGetter = (o) => ((LedsUsed.LedsUsedStruct)o).SortPriority;
+            //if (e.ColumnToSort == null)
+            //{
+                
+            //    Debug.WriteLine("sorting skipped");
+            //    return;
+            //}
+            //// example sort based on the last letter of the object name
+            //var s = new OLVColumn();
+            //s.AspectGetter = (o) => ((LedsUsed.LedsUsedStruct)o).SortPriority;
 
-            olvLedsUsed.ListViewItemSorter = new ColumnComparer(
-                        s, SortOrder.Ascending, e.ColumnToSort, e.SortOrder);
-            e.Handled = true;
+            //olvLedsUsed.ListViewItemSorter = new ColumnComparer(
+            //            s, SortOrder.Ascending, e.ColumnToSort, e.SortOrder);
+            //e.Handled = true;
         }
     }
 }

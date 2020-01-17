@@ -40,7 +40,6 @@ namespace Karta_Pracy_SMT_v2
 
     static class StringExtensions
     {
-
         public static IEnumerable<String> SplitInParts(this String s, Int32 partLength)
         {
             if (s == null)
@@ -51,6 +50,5 @@ namespace Karta_Pracy_SMT_v2
             for (var i = 0; i < s.Length; i += partLength)
                 yield return s.Substring(i, Math.Min(partLength, s.Length - i));
         }
-
     }
 }

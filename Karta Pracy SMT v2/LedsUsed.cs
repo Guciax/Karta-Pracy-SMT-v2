@@ -16,12 +16,12 @@ namespace Karta_Pracy_SMT_v2
     public class LedsUsed
     {
         public static ObjectListView olvLedsUsed;
-        public static List<LedsUsedStruct> ledsUsedList
+        public static List<LedsUsedStruct> ledsUsedList { get; set; }
+
+        public static void RefreshLedUsedOlv()
         {
-            get
-            {
-                return ComponentsOnRw.LedCollection.Select(x => new LedsUsedStruct { ConnectedComponentFromRwList = x }).ToList();
-            }
+            olvLedsUsed.SetObjects(ledsUsedList);
+            olvLedsUsed.RedrawItems(0, olvLedsUsed.Items.Count - 1, false);
         }
 
         public class LedsUsedStruct
@@ -38,11 +38,15 @@ namespace Karta_Pracy_SMT_v2
             public ComponentStruct ConnectedComponentFromRwList { get; set; }
             public string qrCode
             {
-                get { return ConnectedComponentFromRwList.qrCode; }
+                get { return ConnectedComponentFromRwList.QrCode; }
             }
             public bool ComponentInTrash
             {
-                get { return ConnectedComponentFromRwList.attributesCechy.InTrash; }
+                get
+                {
+                    if (ConnectedComponentFromRwList.attributesCechy == null) return false;
+                    return ConnectedComponentFromRwList.attributesCechy.InTrashBool;
+                }
             }
             public string Nc12
             {
@@ -66,7 +70,11 @@ namespace Karta_Pracy_SMT_v2
             }
             public int Qty
             {
-                get { return (int)ConnectedComponentFromRwList.Quantity; }
+                get
+                {
+                    if (ComponentInTrash) return 0;
+                    return (int)ConnectedComponentFromRwList.Quantity;
+                }
             }
             public int QtyNew { get; set; }
             //public string Bin { get; set; }
@@ -74,19 +82,19 @@ namespace Karta_Pracy_SMT_v2
             {
                 get
                 {
-                    if (QtyNew > 0) return Karta_Pracy_SMT_v2.Properties.Resources.InUse_Black;
-                    return Karta_Pracy_SMT_v2.Properties.Resources.Trash_White;
+                    if (ComponentInTrash) return Karta_Pracy_SMT_v2.Properties.Resources.Trash_White;
+                    if(CurrentlyInUse) return Karta_Pracy_SMT_v2.Properties.Resources.InUse_Black;
+                    return Karta_Pracy_SMT_v2.Properties.Resources.available_gray;
                 }
             }
 
             public bool CurrentlyInUse { get; set; }
-
             public Color BackGround
             {
                 get
                 {
+                    if (ComponentInTrash) return Color.Black;
                     if (CurrentlyInUse) return MST.MES.Colors.MaterialColorPalettes.Green().light;
-                    if (ComponentInTrash) return MST.MES.Colors.MaterialColorPalettes.Grey().ulatraDark;
                     return Color.White;
                 }
             }
@@ -94,9 +102,9 @@ namespace Karta_Pracy_SMT_v2
             {
                 get
                 {
-                    if (CurrentlyInUse) return Color.Black;
                     if (ComponentInTrash) return Color.White;
-                    return MST.MES.Colors.MaterialColorPalettes.Grey().light;
+                    if (CurrentlyInUse) return Color.Black;
+                    return MST.MES.Colors.MaterialColorPalettes.Grey().mainLighter;
                 }
             }
         }
@@ -113,7 +121,7 @@ namespace Karta_Pracy_SMT_v2
 
         public static void AddNewLed(Graffiti.MST.ComponentsTools.ComponentStruct componentGraffitiData)
         {
-            var matchingComponents = ledsUsedList.Where(x => x.qrCode == componentGraffitiData.qrCode);
+            var matchingComponents = ledsUsedList.Where(x => x.qrCode == componentGraffitiData.QrCode);
             if (!matchingComponents.Any())
             {
                 MessageBox.Show($"Ta dioda nie aktualnie przypisana jest do tego zlecenia.");
@@ -121,7 +129,7 @@ namespace Karta_Pracy_SMT_v2
             }
             LedsUsedStruct matchingReel = matchingComponents.First();
 
-            if (ledsUsedList.Select(x => x.CurrentlyInUse).Count() >= 4) 
+            if (ledsUsedList.Where(x => x.CurrentlyInUse).Count() >= 4) 
             {
                 MessageBox.Show("Przenieś diody do kosza aby dodać nowe." + Environment.NewLine + "Max. 2 rolki w użyciu na każde 12NC diody.");
                 return;
@@ -142,6 +150,8 @@ namespace Karta_Pracy_SMT_v2
             olvLedsUsed.SetObjects(ledsUsedList);
         }
 
+        
+
 
         public static void MoveLedToTrash(string qrCode)
         {
@@ -151,7 +161,12 @@ namespace Karta_Pracy_SMT_v2
                 MessageBox.Show("Brak rolki LED na liście dodanych.");
                 return;
             }
-            
+            if (!matchingComponents.First().CurrentlyInUse)
+            {
+                MessageBox.Show("Rolka nie jest w użyciu.");
+                return;
+            }
+
             ComponentsOnRw.TrashComponent(qrCode);
             olvLedsUsed.SetObjects(ledsUsedList);
         }
