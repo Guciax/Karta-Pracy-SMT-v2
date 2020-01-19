@@ -88,10 +88,11 @@
   <ItemGroup>
     <Compile Include="BlurredBackground.cs" />
     <Compile Include="ChangeOver.cs" />
-    <Compile Include="ComponentsFromGraffiti.cs" />
+    <Compile Include="ComponentsOnSmtLineLocation.cs" />
     <Compile Include="ComponentsOnRw.cs" />
-    <Compile Include="DataStorage\ConnectedOrder.cs" />
-    <Compile Include="DataStorage\CurrentMstOrder.cs" />
+    <Compile Include="CurrentOrder\BomForCurrentOrderFromGraffiti.cs" />
+    <Compile Include="CurrentOrder\ConnectedOrder.cs" />
+    <Compile Include="CurrentOrder\CurrentMstOrder.cs" />
     <Compile Include="DataStorage\DevTools.cs" />
     <Compile Include="DataStorage\GlobalParameters.cs" />
     <Compile Include="DataStorage\KittingData.cs" />
@@ -162,7 +163,7 @@
       <DependentUpon>UpdateOrderQuantity.cs</DependentUpon>
     </Compile>
     <Compile Include="LedCollectiveDb.cs" />
-    <Compile Include="DataStorage\LedDiodesForCurrentOrder.cs" />
+    <Compile Include="CurrentOrder\LedDiodesForCurrentOrder.cs" />
     <Compile Include="ComponentsKittedForCurrentOrder.cs" />
     <Compile Include="LedsUsed.cs" />
     <Compile Include="OtherComponents.cs" />

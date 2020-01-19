@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Karta_Pracy_SMT_v2
+namespace Karta_Pracy_SMT_v2.CurrentOrder
 {
     public class LedDiodesForCurrentOrder
     {

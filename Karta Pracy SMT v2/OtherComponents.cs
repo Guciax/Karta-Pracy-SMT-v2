@@ -14,6 +14,7 @@ namespace Karta_Pracy_SMT_v2
     public class OtherComponents
     {
         public static ObjectListView olvOtherComponents;
+
         public class OtherComponentsStruct
         {
             public string Name
@@ -85,10 +86,11 @@ namespace Karta_Pracy_SMT_v2
                 } 
             }
         }
+
         /// <summary>
         /// key = 12NCID
         /// </summary>
-        public static Dictionary<string, int> previousReelQty = new Dictionary<string, int>();
+        public static Dictionary<string, int> previousReelQty { get; set; } = new Dictionary<string, int>();
         public static void UpdateList()
         {
             CheckComponentsAvailabilityForCurrentOder();
@@ -182,8 +184,9 @@ namespace Karta_Pracy_SMT_v2
         public static async void GetOtherComponentsForSmtLineFromDb()
         {
             List<OtherComponentsStruct> result = new List<OtherComponentsStruct>();
-            await ComponentsFromGraffiti.LoadComponentsAsync();
-            foreach (var component in ComponentsFromGraffiti.thisLineOtherComponents)
+            ComponentsOnSmtLineLocation.Reload();
+
+            foreach (var component in ComponentsOnSmtLineLocation.thisLineOtherComponents)
             {
                 int prevReelQty = 0;
                 if (previousReelQty.ContainsKey($"{component.Nc12}{component.Id}"))

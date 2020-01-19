@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace Karta_Pracy_SMT_v2.DataStorage
+namespace Karta_Pracy_SMT_v2.CurrentOrder
 {
     public class CurrentMstOrder
     {
