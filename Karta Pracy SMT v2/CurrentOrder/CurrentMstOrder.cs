@@ -1,4 +1,5 @@
-﻿using Karta_Pracy_SMT_v2.DataStructures;
+﻿using Karta_Pracy_SMT_v2.DataStorage;
+using Karta_Pracy_SMT_v2.DataStructures;
 using Karta_Pracy_SMT_v2.Forms;
 using System;
 using System.Collections.Generic;
@@ -50,6 +51,8 @@ namespace Karta_Pracy_SMT_v2.CurrentOrder
             lvProdNorms.Items.Add(new ListViewItem());
             lvProdNorms.Items.Add(new ListViewItem(new[] { "Czas cyklu:", $"{norm.lineCT} sek." }));
             lvProdNorms.Items.Add(new ListViewItem(new[] { "Wydajność:", $"{norm.outputPerHour} szt./godz." }));
+            var qtyToMake = currentOrder.KittingData.orderedQty - currentOrder.ManufacturedQty;
+            lvProdNorms.Items.Add(new ListViewItem(new[] { $"Czas produkcji {qtyToMake}szt:", $"{(int)(60 / norm.outputPerHour * qtyToMake)} min." }));
 
             lvProdNorms.Columns[0].Width = -1;
             lvProdNorms.Columns[1].Width = -1;
@@ -61,7 +64,15 @@ namespace Karta_Pracy_SMT_v2.CurrentOrder
             if (_currentOrder != null) 
             {
                 lvOrderInfo.Items.Add(new ListViewItem(new[] { "Numer:", _currentOrder.OrderNo }));
+                if (ConnectedToCurrentOrder.ConnectedOrder != null)
+                {
+                    lvOrderInfo.Items.Add(new ListViewItem(new[] { "Pow. numer:", ConnectedToCurrentOrder.ConnectedOrder.OrderNo }));
+                }
                 lvOrderInfo.Items.Add(new ListViewItem(new[] { "10NC:", _currentOrder.Model10NcFormated }));
+                if (ConnectedToCurrentOrder.ConnectedOrder != null)
+                {
+                    lvOrderInfo.Items.Add(new ListViewItem(new[] { "Pow. 10NC:", ConnectedToCurrentOrder.ConnectedOrder.Model10NcFormated }));
+                }
                 lvOrderInfo.Items.Add(new ListViewItem(new[] { "Nazwa:", _currentOrder.ModelName }));
                 lvOrderInfo.Items.Add(new ListViewItem(new[] { "Ilość zlecona:", $"{_currentOrder.KittingData.orderedQty} szt." }));
                 lvOrderInfo.Items.Add(new ListViewItem(new[] { "Wykonano:", $"{_currentOrder.ManufacturedQty} szt." }));
@@ -71,6 +82,8 @@ namespace Karta_Pracy_SMT_v2.CurrentOrder
                 lvOrderInfo.Items.Add(new ListViewItem(new[] { "Start:", _currentOrder.SmtData.smtStartDate.ToString("HH:mm") }));
                 lvOrderInfo.Items.Add(new ListViewItem(new[] { "Wydajność:", $"{Math.Round(_currentOrder.ManufacturedQty / (DateTime.Now - _currentOrder.SmtData.smtStartDate).TotalHours,1)} szt/h" }));
                 lvOrderInfo.Items.Add(new ListViewItem(new[] { "Stencil:", _currentOrder.StencilId }));
+                if(ConnectedToCurrentOrder.ConnectedOrder != null)
+
                 if (_currentOrder.KittingData.ledsChoosenByPlanner != null) 
                 {
                     lvOrderInfo.Items.Add(new ListViewItem(new[] { "Diody LED:" }));

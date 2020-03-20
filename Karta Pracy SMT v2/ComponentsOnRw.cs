@@ -16,6 +16,7 @@ namespace Karta_Pracy_SMT_v2
         {
             ComponentsOnRwCollection = null;
         }
+
         public static IEnumerable<ComponentStruct> LedCollection
         {
             get
@@ -45,12 +46,12 @@ namespace Karta_Pracy_SMT_v2
 
         public static void Refresh()
         {
-            ComponentsOnRwCollection = Graffiti.MST.OrdersOperations.GetData.GetComponnetsConnectedToOrder(DataStorage.CurrentMstOrder.currentOrder.KittingData.GraffitiOrderNo.PrimaryKey_00).ToList();
-            LedsUsed.ledsUsedList = ComponentsOnRw.LedCollection.Select(x => new LedsUsedStruct { ConnectedComponentFromRwList = x }).ToList();
+            ComponentsOnRwCollection = Graffiti.MST.OrdersOperations.GetData.GetComponnetsConnectedToOrder(CurrentOrder.CurrentMstOrder.currentOrder.KittingData.GraffitiOrderNo.PrimaryKey_00).ToList();
+            LedsUsed.ledsInUseList = ComponentsOnRw.LedCollection.Select(x => new LedsUsedStruct { ConnectedComponentFromRwList = x }).ToList();
             LedsUsed.RefreshLedUsedOlv();
         }
 
-        public static void TrashComponent(string qrCode)
+        public static async Task TrashComponent(string qrCode)
         {
             var matchingComponents = ComponentsOnRwCollection.Where(c => c.QrCode == qrCode);
             if (!matchingComponents.Any())
@@ -59,12 +60,13 @@ namespace Karta_Pracy_SMT_v2
                 return;
             }
             ComponentStruct componentToTrash = matchingComponents.First();
-            componentToTrash.attributesCechy.InTrashString = "KOSZ";
-            //string[,] arr = new string[1, 2];
-            //arr[0, 0] = "kosz";
-            //arr[0, 1] = "value";
+            componentToTrash.StatusTrash = "KOSZ";
+            string[,] arr = new string[1, 2];
+            arr[0, 0] = "333";
+            arr[0, 1] = "KOSZ";
             //throw new NotImplementedException();
-            //Graffiti.MST.ComponentsTools.UpdateDbData.SetRolkaTablica(qrCode, arr);
+
+            Graffiti.MST.ComponentsTools.UpdateDbData.SetRolkaTablica(qrCode, arr);
         }
     }
 }

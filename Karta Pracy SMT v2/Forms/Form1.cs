@@ -1,4 +1,5 @@
 ﻿using BrightIdeasSoftware;
+using Karta_Pracy_SMT_v2.CurrentOrder;
 using Karta_Pracy_SMT_v2.DataStorage;
 using Karta_Pracy_SMT_v2.Efficiency;
 using Karta_Pracy_SMT_v2.Forms;
@@ -36,6 +37,10 @@ namespace Karta_Pracy_SMT_v2
             OtherComponents.olvOtherComponents = olvOtherComponents;
 
             //olvLedsUsed.AlwaysGroupByColumn = olvLedsUsed.GetColumn(0);
+
+            Efficiency.ShowEfficiency.lCurrentOrderEff = lEfficiencyThisOrder;
+            Efficiency.ShowEfficiency.lOperatorEff = lchangeOverTimeAvg;
+            Efficiency.ShowEfficiency.lShiftEff = lEfficiencyThisShift;
         }
 
         private async void Form1_Load(object sender, EventArgs e)
@@ -46,8 +51,6 @@ namespace Karta_Pracy_SMT_v2
             pChangeOver.Parent = panel10;
             pChangeOver.Dock = DockStyle.Fill;
             pChangeOver.BringToFront();
-            
-
 
             GlobalParameters.SmtLine = SmtLineFile.ReadLine();
             lSmtLine.Text = GlobalParameters.SmtLine;
@@ -71,6 +74,7 @@ namespace Karta_Pracy_SMT_v2
             FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(assembly.Location);
             lVersion.Text = $"ver. {fvi.FileVersion}";
 
+            SolderPasteCheck.mainForm = this;
             //CurrentShiftEfficiency.SpitOutEff();
 
             //olvLedsUsed.CustomSorter = delegate (OLVColumn column, SortOrder order) {
@@ -85,7 +89,7 @@ namespace Karta_Pracy_SMT_v2
             {
                 try
                 {
-                    DevTools.DtDb = MST.MES.Data_structures.DevTools.DevToolsLoader.LoadDevToolsModels();
+                    DevTools.ReloadDb();
                 }
                 catch
                 {
@@ -146,8 +150,8 @@ namespace Karta_Pracy_SMT_v2
         private void bMoveToTrash_Click(object sender, EventArgs e)
         {
             UpdateScreenSHot();
-            if (LedsUsed.ledsUsedList == null) return;
-            if (LedsUsed.ledsUsedList.Count() == 0) return;
+            if (LedsUsed.ledsInUseList == null) return;
+            if (LedsUsed.ledsInUseList.Count() == 0) return;
             using (ScanLedQr scanForm = new ScanLedQr(false))
             {
                 if(scanForm.ShowDialog() == DialogResult.OK)
@@ -178,9 +182,14 @@ namespace Karta_Pracy_SMT_v2
 
             var avgCO = Math.Round(CurrentShiftEfficiency.CalculateCurrentShiftAvgChangeOverTime(), 0);
             var avgCOString = avgCO > 0 ? avgCO.ToString() : "-";
-            lEfficiencyThisOrder.Text = $"{effCurOrdString}%";
-            lEfficiencyThisShift.Text = $"{effCurrentShiftString}%";
-            lchangeOverTimeAvg.Text = $"{avgCOString}min";
+
+            Efficiency.ShowEfficiency.Show();
+
+            SolderPasteCheck.CheckIfNeedToShowAlert();
+
+            //lEfficiencyThisOrder.Text = $"{effCurOrdString}%";
+            //lEfficiencyThisShift.Text = $"{effCurrentShiftString}%";
+
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -324,9 +333,9 @@ namespace Karta_Pracy_SMT_v2
 
         private void UpdateScreenSHot()
         {
-            Bitmap ss = new Bitmap(this.Width, this.Height);
-            this.DrawToBitmap(ss, new Rectangle(0, 0, this.Width, this.Height));
-            BlurredBackground.currentScreenShot = ss;
+            //Bitmap ss = new Bitmap(this.Width, this.Height);
+            //this.DrawToBitmap(ss, new Rectangle(0, 0, this.Width, this.Height));
+            //BlurredBackground.currentScreenShot = ss;
         }
 
         private void lClock_DoubleClick(object sender, EventArgs e)
@@ -336,9 +345,20 @@ namespace Karta_Pracy_SMT_v2
 
         private void bDbg_Click(object sender, EventArgs e)
         {
-            //ChangeOver.StartChangeOver();
-            CurrentMstOrder.UpdateOrderQty(pbBackgroundImage);
-            CurrentMstOrder.UpdateListViewOrderInfo();
+            //SolderPasteCheck.ShowPanel();
+            //var c = Graffiti.MST.ComponentsTools.GetDbData.GetComponentDataWithAttributes(new string[] { "401046000172|ID:57819" }).ToList();
+            //ComponentsOnRw.TrashComponent("401046001391|ID:100053");
+            //string[,] arr = new string[1, 2];
+            //arr[0, 0] = "333";
+            //arr[0, 1] = "KOSZ";
+            //throw new NotImplementedException();
+            //Graffiti.MST.ComponentsTools.UpdateDbData.SetRolkaTablica("401056018021|ID:100022", arr);
+
+            //var cx = Graffiti.MST.ComponentsTools.GetDbData.GetComponentDataWithAttributes(new string[] { "401046000172|ID:57819" }).ToList();
+            ;
+            ////ChangeOver.StartChangeOver();
+            //CurrentMstOrder.UpdateOrderQty(pbBackgroundImage);
+            //CurrentMstOrder.UpdateListViewOrderInfo();
         }
 
         private void bOtherComponentsTrash_Click(object sender, EventArgs e)

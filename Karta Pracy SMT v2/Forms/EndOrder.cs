@@ -1,4 +1,5 @@
 ﻿using BrightIdeasSoftware;
+using Karta_Pracy_SMT_v2.CurrentOrder;
 using Karta_Pracy_SMT_v2.DataStorage;
 using System;
 using System.Collections.Generic;
@@ -24,7 +25,7 @@ namespace Karta_Pracy_SMT_v2.Forms
 
         private void EndOrder_Load(object sender, EventArgs e)
         {
-            olvLeds.SetObjects(LedsUsed.ledsUsedList);
+            olvLeds.SetObjects(LedsUsed.ledsInUseList);
             olvPcb.SetObjects(PcbUsedInOrder.pcbUsedList);
 
             olvLeds.ColumnsInDisplayOrder[3].AspectGetter = delegate (object rowObject) {
@@ -78,7 +79,7 @@ namespace Karta_Pracy_SMT_v2.Forms
         {
             //try
             {
-                foreach (var led in LedsUsed.ledsUsedList)
+                foreach (var led in LedsUsed.ledsInUseList)
                 {
                     //if (led.QtyNew > 0) continue;
                     //MST.MES.SqlOperations.SparingLedInfo.UpdateLedQuantity(led.Nc12, led.Id, "0");

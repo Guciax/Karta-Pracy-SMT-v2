@@ -13,7 +13,7 @@ namespace Karta_Pracy_SMT_v2.CurrentOrder
 
         public static void Reload()
         {
-            bomList = Graffiti.MST.OrdersOperations.GetData.GetCurrentOrderBom(CurrentOrder.CurrentMstOrder.currentOrder.KittingData.GraffitiOrders.PrimaryKey46).ToList();
+            bomList = Graffiti.MST.OrdersOperations.GetData.GetOrderBom(CurrentOrder.CurrentMstOrder.currentOrder.KittingData.GraffitiOrderNo.PrimaryKey_46).ToList();
         }
 
         public static List<Graffiti.MST.ComponentsTools.ComponentStruct> GetLedDiode

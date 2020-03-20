@@ -30,7 +30,7 @@ namespace Karta_Pracy_SMT_v2.DataStorage
 
         private static void GetDevTools()
         {
-            DevTools.DtDb = MST.MES.Data_structures.DevTools.DevToolsLoader.LoadDevToolsModels();
+            DevTools.ReloadDb();
         }
 
         private static void GetSmt()

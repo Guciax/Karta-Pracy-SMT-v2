@@ -1,4 +1,5 @@
 ﻿using BrightIdeasSoftware;
+using Karta_Pracy_SMT_v2.CurrentOrder;
 using Karta_Pracy_SMT_v2.DataStorage;
 using MST.MES;
 using System;
@@ -104,14 +105,14 @@ namespace Karta_Pracy_SMT_v2
 
         public static void AddNewComponent(string nc12, string id)
         {
-            if(otherComponentsList.Where(x=>x.Nc12 == nc12 & x.Id == id).Count() > 0)
+            if (otherComponentsList.Where(x => x.Nc12 == nc12 & x.Id == id).Count() > 0) 
             {
                 MessageBox.Show("Ten komponent już jest na liście");
                 return;
             }
             var existingComponents = otherComponentsList.Where(x => x.Nc12 == nc12 & !x.componentMissing);
             int existingCompQty = 0;
-            if (existingComponents.Count() > 0) 
+            if (existingComponents.Any()) 
             {
                 string message = "Obecnie używany komponent musi zostać przesunięty do KOSZA aby dodać nowy."
                                  + Environment.NewLine
@@ -137,9 +138,8 @@ namespace Karta_Pracy_SMT_v2
                     return;
                 }
             }
-
             //MST.MES.SqlOperations.SparingLedInfo.UpdateLedLocation(nc12, id, GlobalParameters.SmtLine);
-            Graffiti.MST.ComponentsTools.UpdateDbData.UpdateComponentLocation($"{nc12}|ID:{id}", GlobalParameters.SmtLine);
+            Graffiti.MST.ComponentsTools.UpdateDbData.UpdateComponentLocation($"{nc12}|ID:{id}", Graffiti.MST.ComponentsLocations.LineNumberToLocation(GlobalParameters.SmtLine));
             GetOtherComponentsForSmtLineFromDb();
             UpdateList();
         }
@@ -152,9 +152,9 @@ namespace Karta_Pracy_SMT_v2
                 return;
             }
             //MST.MES.SqlOperations.SparingLedInfo.UpdateLedQuantity(nc12, id, "0");
-            Graffiti.MST.ComponentsTools.UpdateDbData.UpdateComponentQty($"{nc12}|ID:{id}", 0);
+            //Graffiti.MST.ComponentsTools.UpdateDbData.UpdateComponentQty($"{nc12}|ID:{id}", 0);
             //MST.MES.SqlOperations.SparingLedInfo.UpdateLedLocation(nc12, id, "KOSZ");
-            Graffiti.MST.ComponentsTools.UpdateDbData.UpdateComponentLocation($"{nc12}|ID:{id}", Graffiti.MST.ComponentsLocations.ComponentsTrash);
+            //Graffiti.MST.ComponentsTools.UpdateDbData.UpdateComponentLocation($"{nc12}|ID:{id}", Graffiti.MST.ComponentsLocations.ComponentsTrash);
 
             GetOtherComponentsForSmtLineFromDb();
             UpdateList();
@@ -184,7 +184,7 @@ namespace Karta_Pracy_SMT_v2
         public static async void GetOtherComponentsForSmtLineFromDb()
         {
             List<OtherComponentsStruct> result = new List<OtherComponentsStruct>();
-            ComponentsOnSmtLineLocation.Reload();
+            await ComponentsOnSmtLineLocation.ReloadAync();
 
             foreach (var component in ComponentsOnSmtLineLocation.thisLineOtherComponents)
             {

@@ -16,12 +16,15 @@ namespace Karta_Pracy_SMT_v2
     public class LedsUsed
     {
         public static ObjectListView olvLedsUsed;
-        public static List<LedsUsedStruct> ledsUsedList { get; set; }
+        public static List<LedsUsedStruct> ledsInUseList { get; set; }
 
         public static void RefreshLedUsedOlv()
         {
-            olvLedsUsed.SetObjects(ledsUsedList);
-            olvLedsUsed.RedrawItems(0, olvLedsUsed.Items.Count - 1, false);
+            olvLedsUsed.SetObjects(ledsInUseList);
+            if (olvLedsUsed.Items.Count > 0)
+            {
+                olvLedsUsed.RedrawItems(0, olvLedsUsed.Items.Count - 1, false);
+            }
         }
 
         public class LedsUsedStruct
@@ -44,8 +47,9 @@ namespace Karta_Pracy_SMT_v2
             {
                 get
                 {
-                    if (ConnectedComponentFromRwList.attributesCechy == null) return false;
-                    return ConnectedComponentFromRwList.attributesCechy.InTrashBool;
+                    if (string.IsNullOrWhiteSpace(ConnectedComponentFromRwList.StatusTrash)) return false;
+                    if (ConnectedComponentFromRwList.StatusTrash.ToUpper() == "KOSZ") return true;
+                    return false;
                 }
             }
             public string Nc12
@@ -82,12 +86,13 @@ namespace Karta_Pracy_SMT_v2
             {
                 get
                 {
+                    if (RefreshingDataRightNow) return Karta_Pracy_SMT_v2.Properties.Resources.spinnerIcon;
                     if (ComponentInTrash) return Karta_Pracy_SMT_v2.Properties.Resources.Trash_White;
                     if(CurrentlyInUse) return Karta_Pracy_SMT_v2.Properties.Resources.InUse_Black;
                     return Karta_Pracy_SMT_v2.Properties.Resources.available_gray;
                 }
             }
-
+            public bool RefreshingDataRightNow { get; set; }
             public bool CurrentlyInUse { get; set; }
             public Color BackGround
             {
@@ -121,7 +126,7 @@ namespace Karta_Pracy_SMT_v2
 
         public static void AddNewLed(Graffiti.MST.ComponentsTools.ComponentStruct componentGraffitiData)
         {
-            var matchingComponents = ledsUsedList.Where(x => x.qrCode == componentGraffitiData.QrCode);
+            var matchingComponents = ledsInUseList.Where(x => x.qrCode == componentGraffitiData.QrCode);
             if (!matchingComponents.Any())
             {
                 MessageBox.Show($"Ta dioda nie aktualnie przypisana jest do tego zlecenia.");
@@ -129,7 +134,7 @@ namespace Karta_Pracy_SMT_v2
             }
             LedsUsedStruct matchingReel = matchingComponents.First();
 
-            if (ledsUsedList.Where(x => x.CurrentlyInUse).Count() >= 4) 
+            if (ledsInUseList.Where(x => x.CurrentlyInUse).Count() >= 4) 
             {
                 MessageBox.Show("Przenieś diody do kosza aby dodać nowe." + Environment.NewLine + "Max. 2 rolki w użyciu na każde 12NC diody.");
                 return;
@@ -147,15 +152,15 @@ namespace Karta_Pracy_SMT_v2
             }
 
             matchingReel.CurrentlyInUse = true;
-            olvLedsUsed.SetObjects(ledsUsedList);
+            olvLedsUsed.SetObjects(ledsInUseList);
         }
 
         
 
 
-        public static void MoveLedToTrash(string qrCode)
+        public static async void MoveLedToTrash(string qrCode)
         {
-            var matchingComponents = ledsUsedList.Where(x => x.qrCode == qrCode);
+            var matchingComponents = ledsInUseList.Where(x => x.qrCode == qrCode);
             if (!matchingComponents.Any())
             {
                 MessageBox.Show("Brak rolki LED na liście dodanych.");
@@ -166,16 +171,18 @@ namespace Karta_Pracy_SMT_v2
                 MessageBox.Show("Rolka nie jest w użyciu.");
                 return;
             }
-
-            ComponentsOnRw.TrashComponent(qrCode);
-            olvLedsUsed.SetObjects(ledsUsedList);
+            matchingComponents.First().RefreshingDataRightNow = true;
+            olvLedsUsed.Refresh();
+            await Task.Run(() => ComponentsOnRw.TrashComponent(qrCode));
+            matchingComponents.First().RefreshingDataRightNow = false;
+            olvLedsUsed.SetObjects(ledsInUseList);
         }
 
         public static void ClearList()
         {
             ComponentsOnRw.ClearList();
             olvLedsUsed.Items.Clear();
-            olvLedsUsed.SetObjects(ledsUsedList);
+            olvLedsUsed.SetObjects(ledsInUseList);
         }
     }
 }

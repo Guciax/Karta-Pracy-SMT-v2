@@ -17,7 +17,7 @@ namespace Karta_Pracy_SMT_v2
             using (SqlConnection openCon = new SqlConnection(@"Data Source=MSTMS010;Initial Catalog=MES;User Id=mes;Password=mes;"))
             {
                 openCon.Open();
-                int newQty = CurrentMstOrder.currentOrder.ManufacturedQty;
+                int newQty = CurrentOrder.CurrentMstOrder.currentOrder.ManufacturedQty;
                 string updString = "UPDATE tb_SMT_Karta_Pracy SET IloscWykonana=@qty, DataCzasKoniec=@DataCzasKoniec WHERE id = @id";
                 using (SqlCommand querySave = new SqlCommand(updString))
                 {

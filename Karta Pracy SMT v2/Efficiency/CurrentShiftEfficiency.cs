@@ -1,4 +1,5 @@
-﻿using Karta_Pracy_SMT_v2.DataStorage;
+﻿using Karta_Pracy_SMT_v2.CurrentOrder;
+using Karta_Pracy_SMT_v2.DataStorage;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -20,6 +21,7 @@ namespace Karta_Pracy_SMT_v2.Efficiency
             {
                 var currentOrderNorm = MST.MES.EfficiencyCalculation.CalculateModelNormPerHour(CurrentMstOrder.currentOrder.modelInfo.DtModel00,
                                                                                                CurrentMstOrder.currentOrder.SmtData.smtLine);
+
                 normTotalMinutes = (float)CurrentMstOrder.currentOrder.ManufacturedQty * 60 / (float)currentOrderNorm.outputPerHour;
                 realTotalMinutes = (float)(CurrentMstOrder.currentOrder.LastUpdateTime - CurrentMstOrder.currentOrder.SmtData.smtStartDate).TotalMinutes;
             }
@@ -35,7 +37,6 @@ namespace Karta_Pracy_SMT_v2.Efficiency
                     endDate = order.LastUpdateTime;
                 }
 
-                if (endDate == DateTime.MinValue) endDate = DateTime.Now;
                 var orderShift = MST.MES.DateTools.GetOrderOwningShift(order.SmtData.smtStartDate, endDate);
                 if (currentShift.fixedDate != orderShift.fixedDate) continue;
 
@@ -85,7 +86,7 @@ namespace Karta_Pracy_SMT_v2.Efficiency
             Debug.WriteLine("12NC;P&P;SMT2 Reflow;SMT3 P&P;SMT3 Reflow");
             foreach (var ledModel in DevTools.DtDb)
             {
-                if (!ledModel.nc12.StartsWith("1010117")) continue;
+                if (ledModel.NcSeriesEnum != MST.MES.Data_structures.DevTools.DevToolsModelStructure.SeriesName.ModulyLED) continue;
                 if (!ledModel.nc12.EndsWith("00")) continue;
                 var norm2 = MST.MES.EfficiencyCalculation.CalculateEffAsmOptAlgorith(ledModel, "SMT2");
                 var norm3 = MST.MES.EfficiencyCalculation.CalculateEffAsmOptAlgorith(ledModel, "SMT3");

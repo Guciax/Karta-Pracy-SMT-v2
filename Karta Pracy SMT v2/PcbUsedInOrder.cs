@@ -28,15 +28,18 @@ namespace Karta_Pracy_SMT_v2
                     return 1;
                 }
             }
-
             public string qrCode
             {
                 get { return ConnectedComponentFromRw.QrCode; }
             }
             public bool ComponentInTrash
             {
-                get { return ConnectedComponentFromRw.attributesCechy.InTrashBool; }
+                get {
+                    if (string.IsNullOrWhiteSpace(ConnectedComponentFromRw.StatusTrash)) return false;
+                    return ConnectedComponentFromRw.StatusTrash.ToUpper() == "KOSZ";
+                }
             }
+            public bool RefreshingDataRightNow { get; set; }
             public string Nc12 { get { return ConnectedComponentFromRw.Nc12; } }
             public string Nc12_Formated { get { return ConnectedComponentFromRw.Nc12_Formated; } }
 
@@ -110,7 +113,7 @@ namespace Karta_Pracy_SMT_v2
 
             if(compFromGraffiti.DocumentSymbol == "Rw")
             {
-                if(compFromGraffiti.ConnectedToOrder != DataStorage.CurrentMstOrder.currentOrder.KittingData.GraffitiOrderNo.PrimaryKey_00)
+                if(compFromGraffiti.ConnectedToOrder != CurrentOrder.CurrentMstOrder.currentOrder.KittingData.GraffitiOrderNo.PrimaryKey_00)
                 {
                     var order = DataStorage.KittingData.KittingDict.Where(o => o.Value.GraffitiOrderNo.PrimaryKey_00 == compFromGraffiti.ConnectedToOrder);
                     if (order.Any())
@@ -130,13 +133,13 @@ namespace Karta_Pracy_SMT_v2
             //AddLedToListView(nc12, id, qty, binId);
 
             Graffiti.MST.ComponentsTools.UpdateDbData.UpdateComponentLocation(compFromGraffiti.QrCode, Graffiti.MST.ComponentsLocations.LineNumberToLocation( GlobalParameters.SmtLine));
-            Graffiti.MST.ComponentsTools.UpdateDbData.BindComponentToOrderNumber(compFromGraffiti.QrCode, CurrentMstOrder.currentOrder.KittingData.GraffitiOrderNo.PrimaryKey_00);
+            Graffiti.MST.ComponentsTools.UpdateDbData.BindComponentToOrderNumber(compFromGraffiti.QrCode, CurrentOrder.CurrentMstOrder.currentOrder.KittingData.GraffitiOrderNo.PrimaryKey_00);
             ComponentsOnRw.Refresh();
             olvPcbUsed.SetObjects(pcbUsedList);
         }
 
 
-        public static void MovePcbToTrash(string qrCode)
+        public static async void MovePcbToTrash(string qrCode)
         {
             var items = pcbUsedList.Where(x => x.qrCode == qrCode);
             if (items.Count() == 0)
@@ -147,7 +150,10 @@ namespace Karta_Pracy_SMT_v2
             PcbUsedStruct thisPcb = items.First();
             thisPcb.QtyNew = 0;
 
-            ComponentsOnRw.TrashComponent(qrCode);
+            thisPcb.RefreshingDataRightNow = true;
+            olvPcbUsed.Refresh();
+            await Task.Run(() => ComponentsOnRw.TrashComponent(qrCode));
+            thisPcb.RefreshingDataRightNow = false;
             olvPcbUsed.SetObjects(pcbUsedList);
         }
 

@@ -1,5 +1,7 @@
-﻿using Karta_Pracy_SMT_v2.DataStorage;
+﻿using Karta_Pracy_SMT_v2.CurrentOrder;
+using Karta_Pracy_SMT_v2.DataStorage;
 using Karta_Pracy_SMT_v2.Forms;
+using MST.MES.Data_structures.DevTools;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -71,8 +73,8 @@ namespace Karta_Pracy_SMT_v2.DataStructures
         public ModelInfo modelInfo;
         public class ModelInfo
         {
-            public MST.MES.Data_structures.DevToolsModelStructure DtModel00 { get; set; }
-            public MST.MES.Data_structures.DevToolsModelStructure DtModel46 { get; set; }
+            public DevToolsModelStructure DtModel00 { get; set; }
+            public DevToolsModelStructure DtModel46 { get; set; }
             public float PcbPerMbCount
             {
                 get

@@ -14,7 +14,7 @@ namespace Karta_Pracy_SMT_v2
 
         public static void Reload()
         {
-            AllComponents = Graffiti.MST.OrdersOperations.GetData.GetComponnetsConnectedToOrder(DataStorage.CurrentMstOrder.currentOrder.KittingData.GraffitiOrderNo.PrimaryKey_00).ToList();
+            AllComponents = Graffiti.MST.OrdersOperations.GetData.GetComponnetsConnectedToOrder(CurrentOrder.CurrentMstOrder.currentOrder.KittingData.GraffitiOrderNo.PrimaryKey_00).ToList();
             LedDiodes = AllComponents.Where(c => c.ComponentIsLedDiode).ToList();
             Pcb = AllComponents.Where(c => !c.ComponentIsLedDiode).ToList();
         }

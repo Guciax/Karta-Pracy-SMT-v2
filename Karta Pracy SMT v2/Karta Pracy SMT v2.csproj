@@ -100,8 +100,10 @@
     <Compile Include="DataStorage\OrdersHistory.cs" />
     <Compile Include="DataStructures\MstOrder.cs" />
     <Compile Include="DgvTools.cs" />
+    <Compile Include="Efficiency\CurrentOperatorEfficiency.cs" />
     <Compile Include="Efficiency\EfficiencyChart.cs" />
     <Compile Include="Efficiency\CurrentShiftEfficiency.cs" />
+    <Compile Include="Efficiency\ShowEfficiency.cs" />
     <Compile Include="Forms\ChangePcbPerMbQty.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -175,6 +177,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="KeyboardDeviceListener.cs" />
     <Compile Include="SmtLineFile.cs" />
+    <Compile Include="SolderPasteCheck.cs" />
     <Compile Include="SqlOperations.cs" />
     <Compile Include="UserDb.cs" />
     <EmbeddedResource Include="Forms\ChangePcbPerMbQty.resx">
@@ -262,6 +265,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="License-LGPL.txt" />
+    <None Include="Resources\spinnerIcon.gif" />
     <None Include="Resources\available gray.bmp" />
     <None Include="Resources\available gray.png" />
     <None Include="Resources\available white.png" />

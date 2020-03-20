@@ -1,4 +1,6 @@
-﻿using MST.MES.Data_structures;
+﻿using Karta_Pracy_SMT_v2.CurrentOrder;
+using MST.MES.Data_structures;
+using MST.MES.Data_structures.DevTools;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,8 +11,12 @@ namespace Karta_Pracy_SMT_v2.DataStorage
 {
     public class DevTools
     {
-        private static List<MST.MES.Data_structures.DevToolsModelStructure> _DtDb = new List<MST.MES.Data_structures.DevToolsModelStructure>();
-        public static List<MST.MES.Data_structures.DevToolsModelStructure> DtDb
+        private static List<DevToolsModelStructure> _DtDb = new List<DevToolsModelStructure>();
+        public static void ReloadDb()
+        {
+            DtDb = DevToolsLoader.LoadDevToolsModels();
+        }
+        public static List<DevToolsModelStructure> DtDb
         { get
             {
                 return _DtDb;
