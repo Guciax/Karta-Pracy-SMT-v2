@@ -50,7 +50,6 @@ namespace Karta_Pracy_SMT_v2.Forms
                 tbOperatorCardId.Text = "3400927164";
             }
         }
-
         private void ShowOrdersQueue()
         {
             var orders = MesData.KittingData.Where(o => o.Value.endDate < o.Value.kittingDate).OrderBy(o=>o.Value.plannedEnd);
@@ -205,8 +204,6 @@ namespace Karta_Pracy_SMT_v2.Forms
                 tbOrderNo.ReadOnly = true;
                 tbOrderNo.ForeColor = Color.Black;
                 tbOrderNo.BackColor = Color.Lime;
-
-                
             }
         }
 
@@ -288,7 +285,7 @@ namespace Karta_Pracy_SMT_v2.Forms
                                             + "Po zakończeniu zlecenia przekaż go technikowi.");
                         }
                     }
-
+                    SolderPasteCheck.CheckIfNeedToShowAlert();
                     this.DialogResult = DialogResult.OK;
                 }
             }

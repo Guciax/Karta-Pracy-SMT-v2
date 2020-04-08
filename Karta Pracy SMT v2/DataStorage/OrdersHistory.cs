@@ -24,18 +24,21 @@ namespace Karta_Pracy_SMT_v2.DataStorage
                 _ordersHistory = value;
                 if (!suspendGridUpdate)
                 {
-                    FillOutDgvOrders();
+                    //FillOutDgvOrders();
+                    ListViewOrders.SourceListForListView.RefreshListView();
                     MakeShiftColors();
                 }
             }
         }
+
 
         private static void FillOutDgvOrders()
         {
             dgvOrders.Rows.Clear();
             foreach (var order in _ordersHistory.OrderByDescending(o=>o.SmtData.smtStartDate))
             {
-
+                if (order.OrderNo == "2011965")
+                    ;
                 var eff = MST.MES.EfficiencyCalculation.CalculateEfficiency(order.SmtData.smtStartDate,
                                                                             order.SmtData.smtEndDate,
                                                                             order.modelInfo.DtModel00,
@@ -117,7 +120,8 @@ namespace Karta_Pracy_SMT_v2.DataStorage
                 if (ordersHistory.Count == ordersCount) break;
             }
             suspendGridUpdate = false;
-            FillOutDgvOrders();
+            ListViewOrders.SourceListForListView.RefreshListView();
+            //FillOutDgvOrders();
         }
 
         private static void MakeShiftColors()

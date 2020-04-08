@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -16,9 +17,19 @@ namespace Karta_Pracy_SMT_v2
     public class LedsUsed
     {
         public static ObjectListView olvLedsUsed;
-        public static List<LedsUsedStruct> ledsInUseList { get; set; }
+        public static List<LedsUsedStruct> ledsInUseList { get; set; } = new List<LedsUsedStruct>();
 
-        public static void RefreshLedUsedOlv()
+        public static void SyncListWithRwList(List<ComponentStruct> newLedRwList)
+        {
+            foreach (var component in newLedRwList)
+            {
+                var matchinbLedComponent = ledsInUseList.Where(led => led.Collective12Nc + led.Id == component.Nc12 + component.Id).ToList();
+                if (matchinbLedComponent.Any()) continue;
+                ledsInUseList.Add(new LedsUsedStruct { ConnectedComponentFromRwList = component });
+            }
+            LedsUsed.RefreshDisplay();
+        }
+        public static void RefreshDisplay()
         {
             olvLedsUsed.SetObjects(ledsInUseList);
             if (olvLedsUsed.Items.Count > 0)
@@ -37,6 +48,15 @@ namespace Karta_Pracy_SMT_v2
                     if (ComponentInTrash) return 2;
                     return 1;
                 } 
+            }
+            public string ListViewGroup
+            {
+                get
+                {
+                    if (CurrentlyInUse) return "W użyciu";
+                    if (ComponentInTrash) return "W koszu";
+                    return "Nie użyte";
+                }
             }
             public ComponentStruct ConnectedComponentFromRwList { get; set; }
             public string qrCode
@@ -92,6 +112,13 @@ namespace Karta_Pracy_SMT_v2
                     return Karta_Pracy_SMT_v2.Properties.Resources.available_gray;
                 }
             }
+            public bool CurrentlyInUseNotTrashed
+            {
+                get
+                {
+                    return (!ComponentInTrash & CurrentlyInUse);
+                }
+            }
             public bool RefreshingDataRightNow { get; set; }
             public bool CurrentlyInUse { get; set; }
             public Color BackGround
@@ -122,42 +149,30 @@ namespace Karta_Pracy_SMT_v2
 
             //MoveLedToTrash("401056011381", "100001");
         }
-
-
-        public static void AddNewLed(Graffiti.MST.ComponentsTools.ComponentStruct componentGraffitiData)
+        public static void AddNewLed(string qrCode)
         {
-            var matchingComponents = ledsInUseList.Where(x => x.qrCode == componentGraffitiData.QrCode);
+            var matchingComponents = ledsInUseList.Where(x => x.qrCode == qrCode);
             if (!matchingComponents.Any())
             {
-                MessageBox.Show($"Ta dioda nie aktualnie przypisana jest do tego zlecenia.");
+                MessageBox.Show($"Ta dioda nie jest przypisana do tego zlecenia.");
                 return;
             }
+
             LedsUsedStruct matchingReel = matchingComponents.First();
 
-            if (ledsInUseList.Where(x => x.CurrentlyInUse).Count() >= 4) 
+            if (ledsInUseList.Where(x => x.CurrentlyInUseNotTrashed).Count() >= 4) 
             {
                 MessageBox.Show("Przenieś diody do kosza aby dodać nowe." + Environment.NewLine + "Max. 2 rolki w użyciu na każde 12NC diody.");
                 return;
             }
-
-            if(matchingReel.CurrentlyInUse)
+            if (matchingReel.CurrentlyInUse) 
             {
                 MessageBox.Show("Ta dioda jest aktualnie w użyciu. ");
                 return;
             }
-            if (matchingReel.CurrentlyInUse)
-            {
-                MessageBox.Show("Ta dioda została już zużyta i przeniesiona do kosza.");
-                return;
-            }
-
             matchingReel.CurrentlyInUse = true;
             olvLedsUsed.SetObjects(ledsInUseList);
         }
-
-        
-
-
         public static async void MoveLedToTrash(string qrCode)
         {
             var matchingComponents = ledsInUseList.Where(x => x.qrCode == qrCode);
@@ -166,15 +181,16 @@ namespace Karta_Pracy_SMT_v2
                 MessageBox.Show("Brak rolki LED na liście dodanych.");
                 return;
             }
-            if (!matchingComponents.First().CurrentlyInUse)
+            var ledReel = matchingComponents.First();
+            if (!ledReel.CurrentlyInUse)
             {
                 MessageBox.Show("Rolka nie jest w użyciu.");
                 return;
             }
-            matchingComponents.First().RefreshingDataRightNow = true;
+            ledReel.RefreshingDataRightNow = true;
             olvLedsUsed.Refresh();
-            await Task.Run(() => ComponentsOnRw.TrashComponent(qrCode));
-            matchingComponents.First().RefreshingDataRightNow = false;
+            await Task.Run(() => ComponentsOnRw.TrashComponent(ledReel.ConnectedComponentFromRwList));
+            ledReel.RefreshingDataRightNow = false;
             olvLedsUsed.SetObjects(ledsInUseList);
         }
 
@@ -182,7 +198,9 @@ namespace Karta_Pracy_SMT_v2
         {
             ComponentsOnRw.ClearList();
             olvLedsUsed.Items.Clear();
+            ledsInUseList = new List<LedsUsedStruct>();
             olvLedsUsed.SetObjects(ledsInUseList);
+            olvLedsUsed.Refresh();
         }
     }
 }

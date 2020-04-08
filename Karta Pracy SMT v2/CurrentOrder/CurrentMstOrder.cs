@@ -150,7 +150,7 @@ namespace Karta_Pracy_SMT_v2.CurrentOrder
             }
         }
 
-        public static void UpdateOrderQty(PictureBox pbBackgroundImage)
+        public static void UpdateOrderQty()
         {
             if (CurrentMstOrder.currentOrder == null) return;
             if ((DateTime.Now - CurrentMstOrder.currentOrder.LastUpdateTime).TotalMinutes < 30) return;
@@ -160,21 +160,21 @@ namespace Karta_Pracy_SMT_v2.CurrentOrder
             using (UpdateOrderQuantity updForm = new UpdateOrderQuantity())
             {
                 var smooth = BlurredBackground.ApplyBlur(BlurredBackground.ssGrayColor);
-                pbBackgroundImage.Image = smooth;
-                pbBackgroundImage.Visible = true;
+                
                 updateFormIsDisplayed = true;
                 if (updForm.ShowDialog() == DialogResult.OK)
                 {
+                    CurrentMstOrder.currentOrder.ManufacturedQty = updForm.result;
                     if (!GlobalParameters.Debug)
                     {
-                        CurrentMstOrder.currentOrder.ManufacturedQty = updForm.result;
                         ConnectedToCurrentOrder.UpdateConnectedOrderQty();
                         CurrentMstOrder.UpdateOrSaveCurretOrderAndConnected();
                         
-                        updateFormIsDisplayed = false;
                     }
+                    ListViewOrders.SourceListForListView.RefreshListView();
+                    updateFormIsDisplayed = false;
                 }
-                pbBackgroundImage.Visible = false;
+
             }
         }
 

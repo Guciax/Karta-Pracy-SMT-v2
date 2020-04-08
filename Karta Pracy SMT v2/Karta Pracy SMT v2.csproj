@@ -110,6 +110,12 @@
     <Compile Include="Forms\ChangePcbPerMbQty.Designer.cs">
       <DependentUpon>ChangePcbPerMbQty.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms\CheckSolderPasteForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\CheckSolderPasteForm.Designer.cs">
+      <DependentUpon>CheckSolderPasteForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Forms\EndOrder.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -168,6 +174,8 @@
     <Compile Include="CurrentOrder\LedDiodesForCurrentOrder.cs" />
     <Compile Include="ComponentsKittedForCurrentOrder.cs" />
     <Compile Include="LedsUsed.cs" />
+    <Compile Include="ListViewOrders\DataModel.cs" />
+    <Compile Include="ListViewOrders\SourceListForListView.cs" />
     <Compile Include="OtherComponents.cs" />
     <Compile Include="PanelDoubleBuffered.cs">
       <SubType>Component</SubType>
@@ -179,9 +187,13 @@
     <Compile Include="SmtLineFile.cs" />
     <Compile Include="SolderPasteCheck.cs" />
     <Compile Include="SqlOperations.cs" />
+    <Compile Include="StartUp.cs" />
     <Compile Include="UserDb.cs" />
     <EmbeddedResource Include="Forms\ChangePcbPerMbQty.resx">
       <DependentUpon>ChangePcbPerMbQty.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\CheckSolderPasteForm.resx">
+      <DependentUpon>CheckSolderPasteForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\EndOrder.resx">
       <DependentUpon>EndOrder.cs</DependentUpon>

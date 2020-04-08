@@ -25,6 +25,12 @@ namespace Karta_Pracy_SMT_v2.Forms
 
         private void EndOrder_Load(object sender, EventArgs e)
         {
+            foreach (var led in LedsUsed.ledsInUseList)
+            {
+                if (led.ComponentInTrash) led.QtyNew = 0;
+                else led.QtyNew = led.Qty;
+            }
+
             olvLeds.SetObjects(LedsUsed.ledsInUseList);
             olvPcb.SetObjects(PcbUsedInOrder.pcbUsedList);
 
@@ -88,14 +94,22 @@ namespace Karta_Pracy_SMT_v2.Forms
                 }
                 foreach (var pcb in PcbUsedInOrder.pcbUsedList)
                 {
-                    if (pcb.QtyNew == pcb.Qty) continue;
-                    //MST.MES.SqlOperations.SparingLedInfo.UpdateLedQuantity(pcb.Nc12, pcb.Id, pcb.QtyNew.ToString());
-                    Graffiti.MST.ComponentsTools.UpdateDbData.BindComponentToOrderNumber($"{pcb.Nc12}|ID:{pcb.Id}", CurrentMstOrder.currentOrder.KittingData.GraffitiOrderNo.PrimaryKey_00);
-                    if(pcb.QtyNew > 0)
+                    int newQty = 0;
+                    foreach (ListViewItem olvItem in olvPcb.Items)
                     {
-                        Graffiti.MST.ComponentsTools.UpdateDbData.UpdateComponentQty($"{pcb.Nc12}|ID:{pcb.Id}", pcb.QtyNew);
+                        if(olvItem.SubItems[1].Text  == pcb.Id)
+                        {
+                            newQty = int.Parse(olvItem.SubItems[2].Text);
+                            break;
+                        }
                     }
+                    if (newQty == 0) continue;
+
+                    Graffiti.MST.ComponentsTools.UpdateDbData.UpdateComponentQty(pcb.qrCode, newQty);
                     
+
+                    
+
                     //MST.MES.SqlOperations.SparingLedInfo.UpdateLedLocation(pcb.Nc12, pcb.Id, pcb.OriginalLocation);
                     //Graffiti.MST.ComponentsTools.UpdateDbData.UpdateComponentLocation($"{pcb.Nc12}|ID:{pcb.Id}", pcb.OriginalLocation);
                 }
@@ -118,6 +132,9 @@ namespace Karta_Pracy_SMT_v2.Forms
             {
                 if (currentQty >= field.Qty) return;
                 field.QtyNew = currentQty + 1;
+                var id = field.Id;
+                var pcbInList = PcbUsedInOrder.pcbUsedList.Where(pcb => pcb.Id == id).First();
+                pcbInList.QtyNew = currentQty + 1;
                 olvPcb.RefreshItem(e.Item);
             }
             if (e.Column.AspectName == "DownNewQty" & currentQty > 0)

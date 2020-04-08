@@ -18,18 +18,15 @@ namespace Karta_Pracy_SMT_v2.Forms
         public string qrCode;
         public Graffiti.MST.ComponentsTools.ComponentStruct graffitiCompData = null;
         private readonly bool getDbData;
-
         public ScanLedQr(bool getDbData)
         {
             InitializeComponent();
             this.getDbData = getDbData;
         }
-
         private void textBox1_Leave(object sender, EventArgs e)
         {
             this.ActiveControl = textBox1;
         }
-
         private void textBox1_KeyDown(object sender, KeyEventArgs e)
         {
             if(e.KeyCode == Keys.Return)
@@ -66,25 +63,31 @@ namespace Karta_Pracy_SMT_v2.Forms
                     nc12 = oldQrCode.Nc12;
                     id = oldQrCode.Id;
                 }
-
-                graffitiCompData = Graffiti.MST.ComponentsTools.GetDbData.GetComponentData(universalQrCode);
-                
+                if (getDbData)
+                {
+                    var graffitiCompDataCollection = Graffiti.MST.ComponentsTools.GetDbData.GetComponentDataBatch(new string[] { universalQrCode }).ToList();
+                    if (!graffitiCompDataCollection.Any())
+                    {
+                        graffitiCompData = null;
+                    }
+                    else
+                    {
+                        graffitiCompData = graffitiCompDataCollection.OrderBy(x => x.operationDate).Last();
+                    }
+                }
                 qrCode = textBox1.Text;
                 this.DialogResult = DialogResult.OK;
             }
         }
-
         private void ScanLedQr_Load(object sender, EventArgs e)
         {
             pictureBox1.Image = BlurredBackground.ApplyBlur(BlurredBackground.ssGrayColor);
         }
-
         private void ScanLedQr_Resize(object sender, EventArgs e)
         {
             panel1.Left = (this.ClientSize.Width - panel1.Width) / 2;
             panel1.Top = (this.ClientSize.Height - panel1.Height) / 2;
         }
-
         private void button1_Click(object sender, EventArgs e)
         {
             this.Close();

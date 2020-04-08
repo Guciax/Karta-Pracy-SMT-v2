@@ -11,6 +11,7 @@ namespace Karta_Pracy_SMT_v2.Efficiency
     {
         public static double GetEff(string operatorName)
         {
+            if (operatorName.Trim() == "") return 0;
             float normTotalMinutes = 0;
             float realTotalMinutes = 0;
             float numberOfOrders = 0;

@@ -3,6 +3,7 @@ using Karta_Pracy_SMT_v2.CurrentOrder;
 using Karta_Pracy_SMT_v2.DataStorage;
 using Karta_Pracy_SMT_v2.Efficiency;
 using Karta_Pracy_SMT_v2.Forms;
+using Karta_Pracy_SMT_v2.ListViewOrders;
 using RawInput_dll;
 using System;
 using System.Collections.Generic;
@@ -35,16 +36,51 @@ namespace Karta_Pracy_SMT_v2
             KeyboardDeviceListener.rawinput.KeyPressed += KeyboardDeviceListener.rawinput_KeyPressed;
 
             OtherComponents.olvOtherComponents = olvOtherComponents;
-
             //olvLedsUsed.AlwaysGroupByColumn = olvLedsUsed.GetColumn(0);
 
             Efficiency.ShowEfficiency.lCurrentOrderEff = lEfficiencyThisOrder;
             Efficiency.ShowEfficiency.lOperatorEff = lchangeOverTimeAvg;
             Efficiency.ShowEfficiency.lShiftEff = lEfficiencyThisShift;
+
+            ListViewOrders.SourceListForListView.olv = olvOrdersHistory;
+            olvOrdersHistory.PrimarySortColumn = olvColumn24;
+            olvOrdersHistory.Sorting = SortOrder.Descending;
+            olvOrdersHistory.AlwaysGroupByColumn = olvColumn19;
+            olvColumn19.GroupFormatter = (BrightIdeasSoftware.OLVGroup group, BrightIdeasSoftware.GroupingParameters parms) =>
+            {
+                MST.MES.DateTools.dateShiftNo shiftInfo = (MST.MES.DateTools.dateShiftNo)group.Key;
+
+                /* Add any processing code that you need */
+
+                //group.Task = " . . . ";
+                string weekDay = shiftInfo.fixedDate.ToString("dddd");
+
+                group.Header = $"{shiftInfo.fixedDate:dd-MM}  {weekDay[0].ToString().ToUpper() + weekDay.Substring(1)}  zm.{shiftInfo.shift}";
+                //group.Subtitle = $("Object A: {a.Index}, Total Water Consumption: {a.WaterConsumption}");
+
+                // This is what is going to be used as a comparable in the GroupComparer below
+                var listOfShifts = ListViewOrders.SourceListForListView.ListOfMstOrders
+                .Select(o => o.ShiftInfo.fixedDate)
+                .Distinct()
+                .OrderByDescending(s => s)
+                .ToList();
+                group.Id = listOfShifts.IndexOf(shiftInfo.fixedDate);
+
+                // This will create the iComparer that is needed to create the custom sorting of the groups
+                parms.GroupComparer = Comparer<BrightIdeasSoftware.OLVGroup>.Create((x, y) => (x.GroupId.CompareTo(y.GroupId)));
+            };
+            
+
         }
 
         private async void Form1_Load(object sender, EventArgs e)
         {
+            if (StartUp.DoWeNeedToStartAppFromLocalDrive())
+            {
+                Application.Exit();
+            }
+
+
             ChangeOver.ChangeOverPanel = pChangeOver;
             ChangeOver.ChangeOverTimer = changeoverTimer;
             ChangeOver.dgvAcceptance = dgvAcceptance;
@@ -101,7 +137,6 @@ namespace Karta_Pracy_SMT_v2
         private void BNewOrder_Click(object sender, EventArgs e)
         {
             UpdateScreenSHot();
-            
             using (NewOrder newOrderForm = new NewOrder())
             {
                 if (newOrderForm.ShowDialog() == DialogResult.OK)
@@ -109,15 +144,16 @@ namespace Karta_Pracy_SMT_v2
                     OrdersHistory.ordersHistory.Add(newOrderForm.dialogResult);
                     CurrentMstOrder.currentOrder = OrdersHistory.ordersHistory.Where(o => o.OrderNo == newOrderForm.dialogResult.OrderNo).OrderByDescending(o => o.SmtData.smtStartDate).First();
                     LedsUsed.ClearList();
-                    ComponentsOnRw.Refresh();
                     PcbUsedInOrder.ClearList();
+                    ComponentsOnRw.Refresh();
+                    
                     tbNg.Text = "0";
                     bFinishOrder.Enabled = true;
                     if (newOrderForm.startChangeover)
                     {
                         ChangeOver.StartChangeOver();
                     }
-                    ComponentsKittedForCurrentOrder.Reload();
+                    //ComponentsKittedForCurrentOrder.Reload();
                 }
                 if (GlobalParameters.Debug)
                 {
@@ -126,6 +162,7 @@ namespace Karta_Pracy_SMT_v2
                 }
             }
             OtherComponents.UpdateList();
+            ListViewOrders.SourceListForListView.RefreshListView();
         }
 
         private void bAddLedQr_Click(object sender, EventArgs e)
@@ -134,11 +171,11 @@ namespace Karta_Pracy_SMT_v2
             UpdateScreenSHot();
             if (CurrentMstOrder.currentOrder != null)
             {
-                using (ScanLedQr scanForm = new ScanLedQr(true))
+                using (ScanLedQr scanForm = new ScanLedQr(false))
                 {
                     if (scanForm.ShowDialog() == DialogResult.OK)
                     {
-                        LedsUsed.AddNewLed(scanForm.graffitiCompData);
+                        LedsUsed.AddNewLed(scanForm.qrCode);
                         //MST.MES.SqlOperations.SparingLedInfo.UpdateLedLocation(scanForm.nc12, scanForm.id, GlobalParameters.SmtLine);
                         //Graffiti.MST.ComponentsTools.UpdateDbData.UpdateComponentLocation(scanForm.graffitiCompData.QrCode,Graffiti.MST.ComponentsLocations.LineNumberToLocation( GlobalParameters.SmtLine));
                     }
@@ -172,7 +209,7 @@ namespace Karta_Pracy_SMT_v2
 
         private void tClock_Tick(object sender, EventArgs e)
         {
-            CurrentMstOrder.UpdateOrderQty(pbBackgroundImage);
+            CurrentMstOrder.UpdateOrderQty();
             EfficiencyChart.AddPoint(pbEfficiencyChart);
             var effCurrentOrder = Math.Round(CurrentShiftEfficiency.CalculateCurrentOrderEfficiency() * 100, 1);
             var effCurOrdString = effCurrentOrder > 0 ? effCurrentOrder.ToString() : "-";
@@ -217,6 +254,8 @@ namespace Karta_Pracy_SMT_v2
                     PcbUsedInOrder.ClearList();
 
                     await MesData.AsyncLoader();
+                    ListViewOrders.SourceListForListView.RefreshListView();
+
                     bNewOrder.Enabled = true;
                     OrdersHistory.MesOrdersToOrdersHistory(40);
                     OtherComponents.UpdateList();
@@ -240,6 +279,11 @@ namespace Karta_Pracy_SMT_v2
             {
                 if (scanForm.ShowDialog() == DialogResult.OK)
                 {
+                    if(scanForm.graffitiCompData == null)
+                    {
+                        MessageBox.Show("Brak danych o komponencie w bazie Graffiti");
+                        return;
+                    }
                     PcbUsedInOrder.AddNewPcb(scanForm.graffitiCompData);
                     {
                         //MST.MES.SqlOperations.SparingLedInfo.UpdateLedZlecenieStringBinIdLocation(scanForm.nc12, scanForm.id, CurrentMstOrder.currentOrder.OrderNo, "A", GlobalParameters.SmtLine);
@@ -359,6 +403,8 @@ namespace Karta_Pracy_SMT_v2
             ////ChangeOver.StartChangeOver();
             //CurrentMstOrder.UpdateOrderQty(pbBackgroundImage);
             //CurrentMstOrder.UpdateListViewOrderInfo();
+            CurrentMstOrder.currentOrder.LastUpdateTime = DateTime.Now.AddMinutes(-60);
+            CurrentMstOrder.UpdateOrderQty();
         }
 
         private void bOtherComponentsTrash_Click(object sender, EventArgs e)
@@ -468,6 +514,8 @@ namespace Karta_Pracy_SMT_v2
                             ChangeOver.oqa = cardForm.userData;
                         }
                     }
+
+                    
                 }
 
                 
@@ -476,6 +524,13 @@ namespace Karta_Pracy_SMT_v2
                 {
                     if (dgvAcceptance.Rows[0].Cells["ColUserName"].Value.ToString() != "" & dgvAcceptance.Rows[1].Cells["ColUserName"].Value.ToString() != "")
                         bChangeOverFinish.Text = "Zakończ przestawienie";
+                }
+
+                if (GlobalParameters.Debug)
+                {
+                    ChangeOver.technician = new MST.MES.UsersDataBase.DataStructures.UserStructure { FirstName = "a", LastName = "b" };
+                    ChangeOver.oqa = new MST.MES.UsersDataBase.DataStructures.UserStructure { FirstName = "a", LastName = "b" };
+                    ChangeOver.FinishChangeOver();
                 }
             }
         }
@@ -519,12 +574,10 @@ namespace Karta_Pracy_SMT_v2
                 }
             }
         }
-
         private void label7_Click(object sender, EventArgs e)
         {
 
         }
-
         private void rbLedShowOnlyCurrent_CheckedChanged(object sender, EventArgs e)
         {
             if (rbLedShowAll.Checked)
@@ -538,12 +591,10 @@ namespace Karta_Pracy_SMT_v2
                 });
             }
         }
-
         private void olvLedsUsed_BeforeCreatingGroups(object sender, CreateGroupsEventArgs e)
         {
             
         }
-
         private void olvLedsUsed_BeforeSorting(object sender, BeforeSortingEventArgs e)
         {
             //if (e.ColumnToSort == null)
@@ -559,6 +610,53 @@ namespace Karta_Pracy_SMT_v2
             //olvLedsUsed.ListViewItemSorter = new ColumnComparer(
             //            s, SortOrder.Ascending, e.ColumnToSort, e.SortOrder);
             //e.Handled = true;
+        }
+        private void bRefresh_Click(object sender, EventArgs e)
+        {
+            ComponentsOnRw.Refresh();
+        }
+
+        private void objectListView1_AboutToCreateGroups(object sender, CreateGroupsEventArgs e)
+        {
+            foreach (OLVGroup olvGroup in e.Groups)
+            {
+                int totalQty = 0;
+                double totalRealTime = 0;
+                double totalTeorethicalTime = 0;
+
+                foreach (OLVListItem item in olvGroup.Items)
+                {
+                    // change this block accordingly
+                    ListViewOrders.DataModel rowObject = item.RowObject as ListViewOrders.DataModel;
+                    if (rowObject.ConnectedMstOrder.SmtData.changeOver) continue;
+                    totalQty += rowObject.ManufacturedQty;
+                    var norm = MST.MES.EfficiencyCalculation.CalculateModelNormPerHour(rowObject.ConnectedMstOrder.modelInfo.DtModel00,
+                        rowObject.ConnectedMstOrder.SmtData.smtLine);
+
+                    totalRealTime += (rowObject.ConnectedMstOrder.SmtData.smtEndDate - rowObject.ConnectedMstOrder.SmtData.smtStartDate).TotalHours;
+                    totalTeorethicalTime += (double)rowObject.ManufacturedQty / norm.outputPerHour;
+                }
+
+                string eff = (totalTeorethicalTime / totalRealTime ).ToString("00.0%");
+                olvGroup.Header += $"   ─────────    Łączna ilość: {totalQty}   ──────────     wydajność zmiany: {eff}";
+            }
+        }
+
+        private void objectListView1_BeforeSorting(object sender, BeforeSortingEventArgs e)
+        {
+
+        }
+
+        private void objectListView1_FormatRow(object sender, FormatRowEventArgs e)
+        {
+            DataModel model = (DataModel)e.Model;
+            if (model.ConnectedMstOrder.SmtData.changeOver)
+            {
+                foreach (BrightIdeasSoftware.OLVListSubItem item in e.Item.SubItems)
+                {
+                    item.ForeColor = Color.Silver;
+                }
+            }
         }
     }
 }

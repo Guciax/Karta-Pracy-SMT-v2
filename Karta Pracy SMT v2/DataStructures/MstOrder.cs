@@ -64,7 +64,13 @@ namespace Karta_Pracy_SMT_v2.DataStructures
         }
         private int _ManufacturedQty;
         public int NgQty { get; set; }
-
+        public MST.MES.DateTools.dateShiftNo ShiftInfo
+        {
+            get
+            {
+                return MST.MES.DateTools.GetOrderOwningShift(SmtData.smtStartDate, SmtData.smtEndDate);
+            }
+        }
         public int dbRecordIndex = -1;
         public DateTime LastUpdateTime = DateTime.Now;
         public Kitting KittingData { get; set; }

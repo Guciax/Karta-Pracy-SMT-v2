@@ -57,11 +57,25 @@ namespace Karta_Pracy_SMT_v2
                                                     ChangeOver.technician.Name,
                                                     ChangeOver.oqa.Name);
 
+            DataStorage.OrdersHistory.ordersHistory.Add(new DataStructures.MstOrder
+            {
+                KittingData = CurrentMstOrder.currentOrder.KittingData,
+                SmtData = new MST.MES.OrderStructureByOrderNo.SmtRecords
+                {
+                    smtStartDate = ChangeOverStart,
+                    smtEndDate = DateTime.Now,
+                    changeOver = true,
+
+                }
+            });
+
             dgvAcceptance.Rows.Clear();
             ChangeOverStart = DateTime.MinValue;
             changeOverInProgress = false;
             CurrentMstOrder.currentOrder.SmtData.smtStartDate = DateTime.Now;
             CurrentMstOrder.UpdateListViewOrderInfo();
+
+            ListViewOrders.SourceListForListView.RefreshListView();
         }
     }
 }

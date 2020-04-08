@@ -84,6 +84,17 @@
             this.ColEfficiency = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.panel10 = new System.Windows.Forms.Panel();
+            this.olvOrdersHistory = new BrightIdeasSoftware.ObjectListView();
+            this.olvColumn15 = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
+            this.olvColumn16 = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
+            this.olvColumn17 = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
+            this.olvColumn18 = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
+            this.olvColumn20 = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
+            this.olvColumn21 = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
+            this.olvColumn22 = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
+            this.olvColumn23 = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
+            this.olvColumn19 = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
+            this.olvColumn24 = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
             this.tableLayoutPanel10 = new System.Windows.Forms.TableLayoutPanel();
             this.olvOtherComponents = new BrightIdeasSoftware.ObjectListView();
             this.olvColumn12 = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
@@ -101,8 +112,9 @@
             this.olvColumn7 = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
             this.olvColumn8 = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
             this.panel9 = new System.Windows.Forms.Panel();
-            this.bMovePcbToTrash = new System.Windows.Forms.Button();
             this.bAddPcb = new System.Windows.Forms.Button();
+            this.bRefresh = new System.Windows.Forms.Button();
+            this.bMovePcbToTrash = new System.Windows.Forms.Button();
             this.pSideLeft = new System.Windows.Forms.Panel();
             this.tableLayoutPanel11 = new System.Windows.Forms.TableLayoutPanel();
             this.olvLedsUsed = new BrightIdeasSoftware.ObjectListView();
@@ -173,6 +185,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.dgvOrders)).BeginInit();
             this.tableLayoutPanel1.SuspendLayout();
             this.panel10.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.olvOrdersHistory)).BeginInit();
             this.tableLayoutPanel10.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.olvOtherComponents)).BeginInit();
             this.tableLayoutPanel6.SuspendLayout();
@@ -812,6 +825,7 @@
             // panel10
             // 
             this.panel10.Controls.Add(this.pChangeOver);
+            this.panel10.Controls.Add(this.olvOrdersHistory);
             this.panel10.Controls.Add(this.dgvOrders);
             this.panel10.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel10.Location = new System.Drawing.Point(0, 320);
@@ -819,6 +833,103 @@
             this.panel10.Name = "panel10";
             this.panel10.Size = new System.Drawing.Size(732, 574);
             this.panel10.TabIndex = 1;
+            // 
+            // olvOrdersHistory
+            // 
+            this.olvOrdersHistory.AllColumns.Add(this.olvColumn24);
+            this.olvOrdersHistory.AllColumns.Add(this.olvColumn15);
+            this.olvOrdersHistory.AllColumns.Add(this.olvColumn16);
+            this.olvOrdersHistory.AllColumns.Add(this.olvColumn17);
+            this.olvOrdersHistory.AllColumns.Add(this.olvColumn18);
+            this.olvOrdersHistory.AllColumns.Add(this.olvColumn20);
+            this.olvOrdersHistory.AllColumns.Add(this.olvColumn21);
+            this.olvOrdersHistory.AllColumns.Add(this.olvColumn22);
+            this.olvOrdersHistory.AllColumns.Add(this.olvColumn23);
+            this.olvOrdersHistory.AllColumns.Add(this.olvColumn19);
+            this.olvOrdersHistory.CellEditUseWholeCell = false;
+            this.olvOrdersHistory.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.olvColumn24,
+            this.olvColumn15,
+            this.olvColumn16,
+            this.olvColumn17,
+            this.olvColumn18,
+            this.olvColumn20,
+            this.olvColumn21,
+            this.olvColumn22,
+            this.olvColumn23});
+            this.olvOrdersHistory.Cursor = System.Windows.Forms.Cursors.Default;
+            this.olvOrdersHistory.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.olvOrdersHistory.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.olvOrdersHistory.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
+            this.olvOrdersHistory.Location = new System.Drawing.Point(0, 0);
+            this.olvOrdersHistory.Name = "olvOrdersHistory";
+            this.olvOrdersHistory.Size = new System.Drawing.Size(732, 574);
+            this.olvOrdersHistory.TabIndex = 8;
+            this.olvOrdersHistory.UseCompatibleStateImageBehavior = false;
+            this.olvOrdersHistory.View = System.Windows.Forms.View.Details;
+            this.olvOrdersHistory.BeforeSorting += new System.EventHandler<BrightIdeasSoftware.BeforeSortingEventArgs>(this.objectListView1_BeforeSorting);
+            this.olvOrdersHistory.AboutToCreateGroups += new System.EventHandler<BrightIdeasSoftware.CreateGroupsEventArgs>(this.objectListView1_AboutToCreateGroups);
+            this.olvOrdersHistory.FormatRow += new System.EventHandler<BrightIdeasSoftware.FormatRowEventArgs>(this.objectListView1_FormatRow);
+            // 
+            // olvColumn15
+            // 
+            this.olvColumn15.AspectName = "OrderNo";
+            this.olvColumn15.Text = "Numer";
+            this.olvColumn15.Width = 75;
+            // 
+            // olvColumn16
+            // 
+            this.olvColumn16.AspectName = "Model10Nc";
+            this.olvColumn16.Text = "10NC";
+            this.olvColumn16.Width = 140;
+            // 
+            // olvColumn17
+            // 
+            this.olvColumn17.AspectName = "ModelName";
+            this.olvColumn17.Text = "Nazwa";
+            this.olvColumn17.Width = 159;
+            // 
+            // olvColumn18
+            // 
+            this.olvColumn18.AspectName = "ManufacturedQty";
+            this.olvColumn18.Text = "Ilość";
+            // 
+            // olvColumn20
+            // 
+            this.olvColumn20.AspectName = "StartDateString";
+            this.olvColumn20.AspectToStringFormat = "";
+            this.olvColumn20.Text = "Start";
+            this.olvColumn20.Width = 100;
+            // 
+            // olvColumn21
+            // 
+            this.olvColumn21.AspectName = "EndDateString";
+            this.olvColumn21.AspectToStringFormat = "";
+            this.olvColumn21.Text = "Koniec";
+            // 
+            // olvColumn22
+            // 
+            this.olvColumn22.AspectName = "Duration";
+            this.olvColumn22.Text = "Czas";
+            // 
+            // olvColumn23
+            // 
+            this.olvColumn23.AspectName = "Efficiency";
+            this.olvColumn23.Text = "Wydajność";
+            this.olvColumn23.Width = 87;
+            // 
+            // olvColumn19
+            // 
+            this.olvColumn19.AspectName = "ShiftInfo";
+            this.olvColumn19.DisplayIndex = 8;
+            this.olvColumn19.IsVisible = false;
+            this.olvColumn19.Text = "Zmiana";
+            // 
+            // olvColumn24
+            // 
+            this.olvColumn24.AspectName = "StartDate";
+            this.olvColumn24.IsVisible = false;
+            this.olvColumn24.Width = 1;
             // 
             // tableLayoutPanel10
             // 
@@ -1002,8 +1113,9 @@
             // 
             // panel9
             // 
-            this.panel9.Controls.Add(this.bMovePcbToTrash);
             this.panel9.Controls.Add(this.bAddPcb);
+            this.panel9.Controls.Add(this.bRefresh);
+            this.panel9.Controls.Add(this.bMovePcbToTrash);
             this.panel9.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel9.Location = new System.Drawing.Point(0, 0);
             this.panel9.Margin = new System.Windows.Forms.Padding(0);
@@ -1011,9 +1123,36 @@
             this.panel9.Size = new System.Drawing.Size(324, 35);
             this.panel9.TabIndex = 6;
             // 
+            // bAddPcb
+            // 
+            this.bAddPcb.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.bAddPcb.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.bAddPcb.Image = global::Karta_Pracy_SMT_v2.Properties.Resources.plusIcon;
+            this.bAddPcb.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.bAddPcb.Location = new System.Drawing.Point(34, 0);
+            this.bAddPcb.Name = "bAddPcb";
+            this.bAddPcb.Size = new System.Drawing.Size(125, 35);
+            this.bAddPcb.TabIndex = 4;
+            this.bAddPcb.Text = "Płyta PCB";
+            this.bAddPcb.UseVisualStyleBackColor = true;
+            this.bAddPcb.Click += new System.EventHandler(this.bAddPcb_Click);
+            // 
+            // bRefresh
+            // 
+            this.bRefresh.Dock = System.Windows.Forms.DockStyle.Left;
+            this.bRefresh.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.bRefresh.Image = global::Karta_Pracy_SMT_v2.Properties.Resources.InUse_White;
+            this.bRefresh.Location = new System.Drawing.Point(0, 0);
+            this.bRefresh.Name = "bRefresh";
+            this.bRefresh.Size = new System.Drawing.Size(34, 35);
+            this.bRefresh.TabIndex = 6;
+            this.bRefresh.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.bRefresh.UseVisualStyleBackColor = true;
+            this.bRefresh.Click += new System.EventHandler(this.bRefresh_Click);
+            // 
             // bMovePcbToTrash
             // 
-            this.bMovePcbToTrash.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.bMovePcbToTrash.Dock = System.Windows.Forms.DockStyle.Right;
             this.bMovePcbToTrash.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
             this.bMovePcbToTrash.Image = global::Karta_Pracy_SMT_v2.Properties.Resources.Trash_Black;
             this.bMovePcbToTrash.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -1023,21 +1162,8 @@
             this.bMovePcbToTrash.TabIndex = 5;
             this.bMovePcbToTrash.Text = "DO KOSZA";
             this.bMovePcbToTrash.UseVisualStyleBackColor = true;
+            this.bMovePcbToTrash.Visible = false;
             this.bMovePcbToTrash.Click += new System.EventHandler(this.bMovePcbToTrash_Click);
-            // 
-            // bAddPcb
-            // 
-            this.bAddPcb.Dock = System.Windows.Forms.DockStyle.Left;
-            this.bAddPcb.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.bAddPcb.Image = global::Karta_Pracy_SMT_v2.Properties.Resources.plusIcon;
-            this.bAddPcb.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.bAddPcb.Location = new System.Drawing.Point(0, 0);
-            this.bAddPcb.Name = "bAddPcb";
-            this.bAddPcb.Size = new System.Drawing.Size(159, 35);
-            this.bAddPcb.TabIndex = 4;
-            this.bAddPcb.Text = "Płyta PCB";
-            this.bAddPcb.UseVisualStyleBackColor = true;
-            this.bAddPcb.Click += new System.EventHandler(this.bAddPcb_Click);
             // 
             // pSideLeft
             // 
@@ -1298,6 +1424,7 @@
             this.bDbg.TabIndex = 3;
             this.bDbg.Text = "dbg";
             this.bDbg.UseVisualStyleBackColor = true;
+            this.bDbg.Visible = false;
             this.bDbg.Click += new System.EventHandler(this.bDbg_Click);
             // 
             // panel11
@@ -1578,10 +1705,9 @@
             this.pChangeOver.Controls.Add(this.bChangeOverFinish);
             this.pChangeOver.Controls.Add(this.lChangeOverTime);
             this.pChangeOver.Controls.Add(this.label7);
-            this.pChangeOver.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pChangeOver.Location = new System.Drawing.Point(0, 0);
+            this.pChangeOver.Location = new System.Drawing.Point(81, 205);
             this.pChangeOver.Name = "pChangeOver";
-            this.pChangeOver.Size = new System.Drawing.Size(732, 574);
+            this.pChangeOver.Size = new System.Drawing.Size(580, 444);
             this.pChangeOver.TabIndex = 7;
             this.pChangeOver.Visible = false;
             // 
@@ -1609,11 +1735,11 @@
             dataGridViewCellStyle7.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
             this.dgvAcceptance.DefaultCellStyle = dataGridViewCellStyle7;
             this.dgvAcceptance.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.dgvAcceptance.Location = new System.Drawing.Point(0, 438);
+            this.dgvAcceptance.Location = new System.Drawing.Point(0, 308);
             this.dgvAcceptance.Name = "dgvAcceptance";
             this.dgvAcceptance.RowHeadersVisible = false;
             this.dgvAcceptance.RowHeadersWidth = 51;
-            this.dgvAcceptance.Size = new System.Drawing.Size(732, 82);
+            this.dgvAcceptance.Size = new System.Drawing.Size(580, 82);
             this.dgvAcceptance.TabIndex = 3;
             this.dgvAcceptance.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvAcceptance_CellContentClick);
             // 
@@ -1649,9 +1775,9 @@
             // 
             this.bChangeOverFinish.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.bChangeOverFinish.Font = new System.Drawing.Font("Microsoft Sans Serif", 16F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.bChangeOverFinish.Location = new System.Drawing.Point(0, 520);
+            this.bChangeOverFinish.Location = new System.Drawing.Point(0, 390);
             this.bChangeOverFinish.Name = "bChangeOverFinish";
-            this.bChangeOverFinish.Size = new System.Drawing.Size(732, 54);
+            this.bChangeOverFinish.Size = new System.Drawing.Size(580, 54);
             this.bChangeOverFinish.TabIndex = 2;
             this.bChangeOverFinish.Text = "Koniec przestawienia - Brak akceptacji";
             this.bChangeOverFinish.UseVisualStyleBackColor = true;
@@ -1663,7 +1789,7 @@
             this.lChangeOverTime.Font = new System.Drawing.Font("Microsoft Sans Serif", 200F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
             this.lChangeOverTime.Location = new System.Drawing.Point(0, 130);
             this.lChangeOverTime.Name = "lChangeOverTime";
-            this.lChangeOverTime.Size = new System.Drawing.Size(732, 444);
+            this.lChangeOverTime.Size = new System.Drawing.Size(580, 314);
             this.lChangeOverTime.TabIndex = 1;
             this.lChangeOverTime.Text = "00:00:00";
             this.lChangeOverTime.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -1674,7 +1800,7 @@
             this.label7.Font = new System.Drawing.Font("Microsoft Sans Serif", 60F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
             this.label7.Location = new System.Drawing.Point(0, 0);
             this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(732, 130);
+            this.label7.Size = new System.Drawing.Size(580, 130);
             this.label7.TabIndex = 0;
             this.label7.Text = "Trwa przestawienie....";
             this.label7.TextAlign = System.Drawing.ContentAlignment.TopCenter;
@@ -1710,6 +1836,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.dgvOrders)).EndInit();
             this.tableLayoutPanel1.ResumeLayout(false);
             this.panel10.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.olvOrdersHistory)).EndInit();
             this.tableLayoutPanel10.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.olvOtherComponents)).EndInit();
             this.tableLayoutPanel6.ResumeLayout(false);
@@ -1863,6 +1990,18 @@
         private System.Windows.Forms.Label label8;
         private BrightIdeasSoftware.OLVColumn olvColSortPriority;
         private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.Button bRefresh;
+        private BrightIdeasSoftware.ObjectListView olvOrdersHistory;
+        private BrightIdeasSoftware.OLVColumn olvColumn15;
+        private BrightIdeasSoftware.OLVColumn olvColumn16;
+        private BrightIdeasSoftware.OLVColumn olvColumn17;
+        private BrightIdeasSoftware.OLVColumn olvColumn18;
+        private BrightIdeasSoftware.OLVColumn olvColumn20;
+        private BrightIdeasSoftware.OLVColumn olvColumn21;
+        private BrightIdeasSoftware.OLVColumn olvColumn22;
+        private BrightIdeasSoftware.OLVColumn olvColumn23;
+        private BrightIdeasSoftware.OLVColumn olvColumn19;
+        private BrightIdeasSoftware.OLVColumn olvColumn24;
     }
 }
 
