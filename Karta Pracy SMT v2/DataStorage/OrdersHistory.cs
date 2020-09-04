@@ -112,8 +112,8 @@ namespace Karta_Pracy_SMT_v2.DataStorage
                     SmtData = smtOrder,
                     modelInfo = new MstOrder.ModelInfo
                     {
-                        DtModel00 = MST.MES.DtTools.GetDtModel00(MesData.KittingData[smtOrder.orderInfo.orderNo].modelId, DevTools.DtDb),
-                        DtModel46 = MST.MES.DtTools.GetDtModel46(MesData.KittingData[smtOrder.orderInfo.orderNo].modelId, DevTools.DtDb)
+                        DtModel00 = MST.MES.DtTools.GetDtModel00(MesData.KittingData[smtOrder.orderInfo.orderNo].Model10Nc, DevTools.DtDb),
+                        DtModel46 = MST.MES.DtTools.GetDtModel46(MesData.KittingData[smtOrder.orderInfo.orderNo].Model10Nc, DevTools.DtDb)
                     }
                 };
                 ordersHistory.Add(newOrder);

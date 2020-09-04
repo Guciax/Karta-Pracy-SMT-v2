@@ -69,18 +69,13 @@ namespace Karta_Pracy_SMT_v2
                 // This will create the iComparer that is needed to create the custom sorting of the groups
                 parms.GroupComparer = Comparer<BrightIdeasSoftware.OLVGroup>.Create((x, y) => (x.GroupId.CompareTo(y.GroupId)));
             };
-            
-
         }
-
         private async void Form1_Load(object sender, EventArgs e)
         {
-            if (StartUp.DoWeNeedToStartAppFromLocalDrive())
+            if (StartupUpdateCheck.DoWork.DoWeNeedToStartAppFromLocalDrive())
             {
                 Application.Exit();
             }
-
-
             ChangeOver.ChangeOverPanel = pChangeOver;
             ChangeOver.ChangeOverTimer = changeoverTimer;
             ChangeOver.dgvAcceptance = dgvAcceptance;
@@ -95,12 +90,12 @@ namespace Karta_Pracy_SMT_v2
             OrdersHistory.MesOrdersToOrdersHistory(40);
             OtherComponents.UpdateList();
 
-#if DEBUG
-            bDebug.Visible = true;
-            GlobalParameters.Debug = true;
-            bDbg.Visible = true;
-            GlobalParameters.SmtLine = "SMT2";
-#endif
+            #if DEBUG
+                bDebug.Visible = true;
+                GlobalParameters.Debug = true;
+                bDbg.Visible = true;
+                GlobalParameters.SmtLine = "SMT2";
+            #endif
 
             pbBackgroundImage.Parent = this;
             pbBackgroundImage.Dock = DockStyle.Fill;
@@ -118,7 +113,6 @@ namespace Karta_Pracy_SMT_v2
             //            this.olvColSortPriority, SortOrder.Ascending, column, order);
             //};
         }
-
         private void tDataUpdates_Tick(object sender, EventArgs e)
         {
             if ((DateTime.Now - DevTools.lastUpdateTime).TotalHours > 1) 
@@ -142,9 +136,14 @@ namespace Karta_Pracy_SMT_v2
                 if (newOrderForm.ShowDialog() == DialogResult.OK)
                 {
                     OrdersHistory.ordersHistory.Add(newOrderForm.dialogResult);
-                    CurrentMstOrder.currentOrder = OrdersHistory.ordersHistory.Where(o => o.OrderNo == newOrderForm.dialogResult.OrderNo).OrderByDescending(o => o.SmtData.smtStartDate).First();
+                    CurrentMstOrder.currentOrder = OrdersHistory.ordersHistory
+                        .Where(o => o.OrderNo == newOrderForm.dialogResult.OrderNo)
+                        .OrderByDescending(o => o.SmtData.smtStartDate)
+                        .First();
+
                     LedsUsed.ClearList();
                     PcbUsedInOrder.ClearList();
+
                     ComponentsOnRw.Refresh();
                     
                     tbNg.Text = "0";
@@ -168,7 +167,7 @@ namespace Karta_Pracy_SMT_v2
         private void bAddLedQr_Click(object sender, EventArgs e)
         {
             //LedDiodesForCurrentOrder.ReloadList();
-            UpdateScreenSHot();
+            //UpdateScreenSHot();
             if (CurrentMstOrder.currentOrder != null)
             {
                 using (ScanLedQr scanForm = new ScanLedQr(false))
@@ -220,7 +219,7 @@ namespace Karta_Pracy_SMT_v2
             var avgCO = Math.Round(CurrentShiftEfficiency.CalculateCurrentShiftAvgChangeOverTime(), 0);
             var avgCOString = avgCO > 0 ? avgCO.ToString() : "-";
 
-            Efficiency.ShowEfficiency.Show();
+            Efficiency.ShowEfficiency.RefreshLabels();
 
             SolderPasteCheck.CheckIfNeedToShowAlert();
 
@@ -361,7 +360,7 @@ namespace Karta_Pracy_SMT_v2
 
         private void bOtherComponentsAdd_Click(object sender, EventArgs e)
         {
-            UpdateScreenSHot();
+            //UpdateScreenSHot();
             using (ScanLedQr scanForm = new ScanLedQr(false))
             {
                 if(scanForm.ShowDialog() == DialogResult.OK)
@@ -409,7 +408,7 @@ namespace Karta_Pracy_SMT_v2
 
         private void bOtherComponentsTrash_Click(object sender, EventArgs e)
         {
-            UpdateScreenSHot();
+            //UpdateScreenSHot();
             using (ScanLedQr scanForm = new ScanLedQr(false))
             {
                 if (scanForm.ShowDialog() == DialogResult.OK)
@@ -418,7 +417,6 @@ namespace Karta_Pracy_SMT_v2
                 }
             }
         }
-
         private void bMoveToStorage_Click(object sender, EventArgs e)
         {
             UpdateScreenSHot();
@@ -430,12 +428,10 @@ namespace Karta_Pracy_SMT_v2
                 }
             }
         }
-
         private void olvOtherComponents_FormatCell(object sender, BrightIdeasSoftware.FormatCellEventArgs e)
         {
             
         }
-
         private void olvOtherComponents_FormatRow(object sender, BrightIdeasSoftware.FormatRowEventArgs e)
         {
             OtherComponentsStruct model = e.Model as OtherComponentsStruct;
@@ -559,20 +555,7 @@ namespace Karta_Pracy_SMT_v2
 
         private void lvProdNorms_ItemActivate(object sender, EventArgs e)
         {
-            int idx = lvProdNorms.SelectedIndices[0];
-            var i = lvProdNorms.Items[idx];
-            if (i.Text == "PCB / MB:")
-            {
-                var qty = int.Parse(i.SubItems[1].Text.Replace(" szt.", ""));
-                using (ChangePcbPerMbQty changeForm = new ChangePcbPerMbQty())
-                {
-                    if (changeForm.ShowDialog() == DialogResult.OK)
-                    {
-                        DevTools.PcbPerMbOverwritenByUser = changeForm.qty;
-                        CurrentMstOrder.UpdateListViewProductionNorms();
-                    }
-                }
-            }
+            
         }
         private void label7_Click(object sender, EventArgs e)
         {
@@ -656,6 +639,36 @@ namespace Karta_Pracy_SMT_v2
                 {
                     item.ForeColor = Color.Silver;
                 }
+            }
+        }
+
+        private void lfOrderInfo_ItemActivate(object sender, EventArgs e)
+        {
+            int idx = lfOrderInfo.SelectedIndices[0];
+            var i = lfOrderInfo.Items[idx];
+            if (i.Text == "PCB / MB:")
+            {
+                var qty = int.Parse(i.SubItems[1].Text.Replace(" szt.", ""));
+                using (ChangePcbPerMbQty changeForm = new ChangePcbPerMbQty())
+                {
+                    if (changeForm.ShowDialog() == DialogResult.OK)
+                    {
+                        DevTools.PcbPerMbOverwritenByUser = changeForm.qty;
+                        CurrentMstOrder.UpdateListViewOrderInfo();
+                    }
+                }
+            }
+        }
+
+        private void lfOrderInfo_ItemMouseHover(object sender, ListViewItemMouseHoverEventArgs e)
+        {
+            if (e.Item.Text == "PCB / MB:")
+            {
+                lfOrderInfo.Cursor = Cursors.Hand;
+            }
+            else
+            {
+                lfOrderInfo.Cursor = Cursors.Default;
             }
         }
     }

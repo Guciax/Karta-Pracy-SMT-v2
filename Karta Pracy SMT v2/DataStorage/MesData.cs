@@ -18,8 +18,9 @@ namespace Karta_Pracy_SMT_v2.DataStorage
             tasks.Add(Task.Run(() => GetDevTools()));
             tasks.Add(Task.Run(() => GetSmt()));
             tasks.Add(Task.Run(() => LedCollectiveDb.LoadDb()));
-            tasks.Add(Task.Run(() => OtherComponents.GetOtherComponentsForSmtLineFromDb()));
+            //tasks.Add(Task.Run(() => OtherComponents.GetOtherComponentsForSmtLineFromDb()));
             await Task.WhenAll(tasks);
+            OtherComponents.GetOtherComponentsForSmtLineFromDb();
         }
 
         private static void GetKitting()

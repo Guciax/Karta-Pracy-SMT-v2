@@ -27,7 +27,7 @@ namespace Karta_Pracy_SMT_v2.DataStructures
             get
             {
                 if (KittingData != null)
-                    return KittingData.modelId;
+                    return KittingData.Model10Nc;
                 return null;
             }
         }

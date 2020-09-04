@@ -259,6 +259,10 @@
       <Project>{4143d085-38cf-4640-bb05-2fdffaf94d76}</Project>
       <Name>RawInput</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\StartupUpdateCheck\StartupUpdateCheck\StartupUpdateCheck.csproj">
+      <Project>{2f17525d-e7ce-4824-8239-ba69483d9778}</Project>
+      <Name>StartupUpdateCheck</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\InUse.png" />

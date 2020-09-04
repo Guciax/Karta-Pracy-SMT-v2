@@ -63,7 +63,7 @@ namespace Karta_Pracy_SMT_v2.Forms
 
                 ListViewItem newItem = new ListViewItem();
                 newItem.Text = order.Value.orderNo;
-                newItem.SubItems.Add(order.Value.modelId_12NCFormat);
+                newItem.SubItems.Add(order.Value.Model10Nc_12NCFormat);
                 newItem.SubItems.Add(order.Value.orderedQty.ToString());
                 newItem.SubItems.Add(smtQty.ToString());
                 lvOrdersQueue.Items.Add(newItem);
@@ -98,7 +98,7 @@ namespace Karta_Pracy_SMT_v2.Forms
         {
             if (kittingData != null)
             {
-                lOrderInfo.Text = $"10NC: {kittingData.modelId_12NCFormat}" + Environment.NewLine
+                lOrderInfo.Text = $"10NC: {kittingData.Model10Nc_12NCFormat}" + Environment.NewLine
                             + $"Nazwa: {kittingData.ModelName}" + Environment.NewLine
                             + $"Ilość zlecona: {kittingData.orderedQty}" + Environment.NewLine;
                 try
@@ -108,7 +108,7 @@ namespace Karta_Pracy_SMT_v2.Forms
                 catch { }
 
 
-                var dtModel = MST.MES.DtTools.GetDtModel00(kittingData.modelId, DevTools.DtDb);
+                var dtModel = MST.MES.DtTools.GetDtModel00(kittingData.Model10Nc, DevTools.DtDb);
                 if (dtModel != null)
                 {
                     lModelInfo.Text = $"Ilość LED: {MST.MES.DtTools.GetLedCount(dtModel)} szt." + Environment.NewLine
@@ -179,13 +179,13 @@ namespace Karta_Pracy_SMT_v2.Forms
                 return false;
             }
 
-            var dtModel00 = MST.MES.DtTools.GetDtModel00(kittingData.modelId, DevTools.DtDb);
+            var dtModel00 = MST.MES.DtTools.GetDtModel00(kittingData.Model10Nc, DevTools.DtDb);
             if (dtModel00 == null)
             {
-                MessageBox.Show($"Brak Modelu {kittingData.modelId_12NCFormat} w bazie DevTools.");
+                MessageBox.Show($"Brak Modelu {kittingData.Model10Nc_12NCFormat} w bazie DevTools.");
                 return false;
             }
-            var dtModel46 = MST.MES.DtTools.GetDtModel46(kittingData.modelId, DevTools.DtDb);
+            var dtModel46 = MST.MES.DtTools.GetDtModel46(kittingData.Model10Nc, DevTools.DtDb);
             dialogResult.modelInfo = new MstOrder.ModelInfo
             {
                 DtModel00 = dtModel00,

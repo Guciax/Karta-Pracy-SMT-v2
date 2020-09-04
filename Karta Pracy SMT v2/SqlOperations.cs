@@ -29,22 +29,21 @@ namespace Karta_Pracy_SMT_v2
                 }
             }
         }
-
         internal static int InsertSmtRecordToDb(MstOrder mstRecord)
         {
-            int lastRecordId = InsertRecordToDb(mstRecord.SmtData.smtStartDate, 
-                             DateTime.Now, 
-                             GlobalParameters.SmtLine, 
-                             mstRecord.OperatorName, 
-                             mstRecord.OrderNo, 
-                             mstRecord.Model10Nc, 
-                             mstRecord.ManufacturedQty.ToString(), 
-                             mstRecord.NgQty.ToString(), 
-                             "0", 
-                             "check", 
-                             "", 
-                             mstRecord.StencilId, 
-                             "MST", 
+            int lastRecordId = InsertRecordToDb(mstRecord.SmtData.smtStartDate,
+                             DateTime.Now,
+                             GlobalParameters.SmtLine,
+                             mstRecord.OperatorName,
+                             mstRecord.OrderNo,
+                             mstRecord.Model10Nc,
+                             mstRecord.ManufacturedQty.ToString(),
+                             mstRecord.NgQty.ToString(),
+                             "0",
+                             "check",
+                             "",
+                             mstRecord.StencilId,
+                             "MST",
                              0);
 
             if (lastRecordId > 0)

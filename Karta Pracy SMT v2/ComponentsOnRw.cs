@@ -25,7 +25,9 @@ namespace Karta_Pracy_SMT_v2
                 if (ComponentsOnRwCollection == null) Refresh();
                 //var ledsCol = ComponentsOnRwCollection.Where(c => c.ComponentIsLedDiode);
                 //var wl = ledsCol.ToList();
-                return ComponentsOnRwCollection.Where(c => c.ComponentIsLedDiode).Where(l => l.DocumentSymbol == "Rw");
+                return ComponentsOnRwCollection
+                    .Where(c => c.ComponentIsLedDiode)
+                    .Where(l => l.DocumentSymbol == "Rw");
             }
         }
         public static IEnumerable<ComponentStruct> PcbCollection
@@ -53,6 +55,12 @@ namespace Karta_Pracy_SMT_v2
             ComponentsOnRwCollection = Graffiti.MST.OrdersOperations.GetData.GetComponnetsConnectedToOrder(CurrentOrder.CurrentMstOrder.currentOrder.KittingData.GraffitiOrderNo.PrimaryKey_00)
                 .OrderBy(c=>c.Id)
                 .ToList();
+
+            var componentsStatus = Graffiti.MST.ComponentsTools.GetDbData.GetStatusFromQrCode(ComponentsOnRwCollection.Select(x => x.QrCode).ToList());
+            foreach (var component in ComponentsOnRwCollection)
+            {
+                component.StatusTrash = componentsStatus.Where(x=>x.Lp100 == component.QrCode).First().StatusValue;
+            }
             Debug.WriteLine("RW:"+string.Join(",", ComponentsOnRwCollection.Select(c => c.Nc12).Distinct().ToArray()));
             LedsUsed.SyncListWithRwList(ComponentsOnRw.LedCollection.ToList());
             PcbUsedInOrder.SyncListWithPcbRwList(ComponentsOnRw.PcbCollection.ToList());
@@ -61,12 +69,13 @@ namespace Karta_Pracy_SMT_v2
         public static async Task TrashComponent(ComponentStruct connectedComponentOnRw)
         {
             connectedComponentOnRw.StatusTrash = "KOSZ";
-            string[,] arr = new string[1, 2];
-            arr[0, 0] = "333";
-            arr[0, 1] = "KOSZ";
+            //string[,] arr = new string[1, 2];
+            //arr[0, 0] = "333";
+            //arr[0, 1] = "KOSZ";
             //throw new NotImplementedException();
 
             //Graffiti.MST.ComponentsTools.UpdateDbData.SetRolkaTablica(qrCode, arr);
+            Graffiti.MST.ComponentsTools.UpdateDbData.SetStatus(connectedComponentOnRw.QrCode, "KOSZ");
         }
     }
 }

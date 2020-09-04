@@ -106,10 +106,6 @@ namespace Karta_Pracy_SMT_v2.Forms
                     if (newQty == 0) continue;
 
                     Graffiti.MST.ComponentsTools.UpdateDbData.UpdateComponentQty(pcb.qrCode, newQty);
-                    
-
-                    
-
                     //MST.MES.SqlOperations.SparingLedInfo.UpdateLedLocation(pcb.Nc12, pcb.Id, pcb.OriginalLocation);
                     //Graffiti.MST.ComponentsTools.UpdateDbData.UpdateComponentLocation($"{pcb.Nc12}|ID:{pcb.Id}", pcb.OriginalLocation);
                 }

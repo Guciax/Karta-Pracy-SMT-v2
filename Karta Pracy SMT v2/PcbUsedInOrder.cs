@@ -91,12 +91,32 @@ namespace Karta_Pracy_SMT_v2
         }
         public static void SyncListWithPcbRwList(List<ComponentStruct> newPcbRwList)
         {
-            foreach (var component in newPcbRwList)
+            pcbUsedList.Clear();
+            var grouppedByNcId = newPcbRwList.GroupBy(x => x.Nc12 + x.Id);
+            foreach (var pcb in grouppedByNcId)
             {
-                var matchinbLedComponent = pcbUsedList.Where(pcb => pcb.Nc12 + pcb.Id == component.Nc12 + component.Id);
-                if (matchinbLedComponent.Any()) continue;
-                pcbUsedList.Add(new PcbUsedStruct { ConnectedComponentFromRw = component });
+                double qty = 0;
+                if (pcb.Last().Quantity < 0)
+                {
+                    qty = Math.Abs(pcb.Last().Quantity);
+                }
+                    
+                    
+                
+                PcbUsedStruct newPcb = new PcbUsedStruct
+                {
+                    ConnectedComponentFromRw = pcb.Last(),
+                    QtyNew = (int)qty
+                };
+                pcbUsedList.Add(newPcb);
             }
+
+            //foreach (var component in newPcbRwList)
+            //{
+            //    var matchinbLedComponent = pcbUsedList.Where(pcb => pcb.Nc12 + pcb.Id == component.Nc12 + component.Id);
+            //    if (matchinbLedComponent.Any()) continue;
+            //    pcbUsedList.Add(new PcbUsedStruct { ConnectedComponentFromRw = component });
+            //}
             RefreshDisplay();
         }
         public static void RefreshDisplay()

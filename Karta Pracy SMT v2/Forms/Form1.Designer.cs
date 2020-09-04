@@ -43,6 +43,7 @@
             this.lvProdNorms = new System.Windows.Forms.ListView();
             this.columnHeader3 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader4 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeader5 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.panel1 = new System.Windows.Forms.Panel();
             this.pbBackgroundImage = new System.Windows.Forms.PictureBox();
             this.label2 = new System.Windows.Forms.Label();
@@ -85,6 +86,7 @@
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.panel10 = new System.Windows.Forms.Panel();
             this.olvOrdersHistory = new BrightIdeasSoftware.ObjectListView();
+            this.olvColumn24 = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
             this.olvColumn15 = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
             this.olvColumn16 = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
             this.olvColumn17 = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
@@ -94,7 +96,6 @@
             this.olvColumn22 = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
             this.olvColumn23 = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
             this.olvColumn19 = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
-            this.olvColumn24 = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
             this.tableLayoutPanel10 = new System.Windows.Forms.TableLayoutPanel();
             this.olvOtherComponents = new BrightIdeasSoftware.ObjectListView();
             this.olvColumn12 = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
@@ -118,11 +119,11 @@
             this.pSideLeft = new System.Windows.Forms.Panel();
             this.tableLayoutPanel11 = new System.Windows.Forms.TableLayoutPanel();
             this.olvLedsUsed = new BrightIdeasSoftware.ObjectListView();
+            this.olvColSortPriority = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
             this.olvColumn1 = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
             this.olvColumn2 = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
             this.olvColumn3 = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
             this.olvColumn4 = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
-            this.olvColSortPriority = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
             this.panel8 = new System.Windows.Forms.Panel();
             this.bAddLedQr = new System.Windows.Forms.Button();
             this.bMoveLedToTrash = new System.Windows.Forms.Button();
@@ -274,7 +275,8 @@
             this.lvProdNorms.Activation = System.Windows.Forms.ItemActivation.OneClick;
             this.lvProdNorms.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.columnHeader3,
-            this.columnHeader4});
+            this.columnHeader4,
+            this.columnHeader5});
             this.lvProdNorms.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lvProdNorms.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
             this.lvProdNorms.GridLines = true;
@@ -288,7 +290,6 @@
             this.lvProdNorms.TabIndex = 2;
             this.lvProdNorms.UseCompatibleStateImageBehavior = false;
             this.lvProdNorms.View = System.Windows.Forms.View.Details;
-            this.lvProdNorms.ItemActivate += new System.EventHandler(this.lvProdNorms_ItemActivate);
             this.lvProdNorms.ItemSelectionChanged += new System.Windows.Forms.ListViewItemSelectionChangedEventHandler(this.lvProdNorms_ItemSelectionChanged);
             // 
             // columnHeader3
@@ -413,6 +414,8 @@
             this.lfOrderInfo.TabIndex = 0;
             this.lfOrderInfo.UseCompatibleStateImageBehavior = false;
             this.lfOrderInfo.View = System.Windows.Forms.View.Details;
+            this.lfOrderInfo.ItemActivate += new System.EventHandler(this.lfOrderInfo_ItemActivate);
+            this.lfOrderInfo.ItemMouseHover += new System.Windows.Forms.ListViewItemMouseHoverEventHandler(this.lfOrderInfo_ItemMouseHover);
             // 
             // columnHeader1
             // 
@@ -871,6 +874,12 @@
             this.olvOrdersHistory.AboutToCreateGroups += new System.EventHandler<BrightIdeasSoftware.CreateGroupsEventArgs>(this.objectListView1_AboutToCreateGroups);
             this.olvOrdersHistory.FormatRow += new System.EventHandler<BrightIdeasSoftware.FormatRowEventArgs>(this.objectListView1_FormatRow);
             // 
+            // olvColumn24
+            // 
+            this.olvColumn24.AspectName = "StartDate";
+            this.olvColumn24.IsVisible = false;
+            this.olvColumn24.Width = 1;
+            // 
             // olvColumn15
             // 
             this.olvColumn15.AspectName = "OrderNo";
@@ -925,12 +934,6 @@
             this.olvColumn19.IsVisible = false;
             this.olvColumn19.Text = "Zmiana";
             // 
-            // olvColumn24
-            // 
-            this.olvColumn24.AspectName = "StartDate";
-            this.olvColumn24.IsVisible = false;
-            this.olvColumn24.Width = 1;
-            // 
             // tableLayoutPanel10
             // 
             this.tableLayoutPanel10.ColumnCount = 1;
@@ -967,7 +970,6 @@
             this.olvColumn13,
             this.olvColumn9,
             this.olvColumn10,
-            this.olvColumn14,
             this.olvColumn11});
             this.olvOtherComponents.Cursor = System.Windows.Forms.Cursors.Default;
             this.olvOtherComponents.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -993,7 +995,6 @@
             // olvColumn13
             // 
             this.olvColumn13.AspectName = "Name";
-            this.olvColumn13.FillsFreeSpace = true;
             this.olvColumn13.Text = "Nazwa";
             // 
             // olvColumn9
@@ -1011,6 +1012,8 @@
             // olvColumn14
             // 
             this.olvColumn14.AspectName = "Qty";
+            this.olvColumn14.DisplayIndex = 4;
+            this.olvColumn14.IsVisible = false;
             this.olvColumn14.Text = "Ilość";
             // 
             // olvColumn11
@@ -1192,13 +1195,14 @@
             // 
             // olvLedsUsed
             // 
+            this.olvLedsUsed.AllColumns.Add(this.olvColSortPriority);
             this.olvLedsUsed.AllColumns.Add(this.olvColumn1);
             this.olvLedsUsed.AllColumns.Add(this.olvColumn2);
             this.olvLedsUsed.AllColumns.Add(this.olvColumn3);
             this.olvLedsUsed.AllColumns.Add(this.olvColumn4);
-            this.olvLedsUsed.AllColumns.Add(this.olvColSortPriority);
             this.olvLedsUsed.CellEditUseWholeCell = false;
             this.olvLedsUsed.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.olvColSortPriority,
             this.olvColumn1,
             this.olvColumn2,
             this.olvColumn3,
@@ -1222,6 +1226,12 @@
             this.olvLedsUsed.BeforeCreatingGroups += new System.EventHandler<BrightIdeasSoftware.CreateGroupsEventArgs>(this.olvLedsUsed_BeforeCreatingGroups);
             this.olvLedsUsed.FormatCell += new System.EventHandler<BrightIdeasSoftware.FormatCellEventArgs>(this.olvLedsUsed_FormatCell);
             this.olvLedsUsed.FormatRow += new System.EventHandler<BrightIdeasSoftware.FormatRowEventArgs>(this.olvLedsUsed_FormatRow);
+            // 
+            // olvColSortPriority
+            // 
+            this.olvColSortPriority.AspectName = "SortPriority";
+            this.olvColSortPriority.IsVisible = false;
+            this.olvColSortPriority.Width = 1;
             // 
             // olvColumn1
             // 
@@ -1254,11 +1264,6 @@
             this.olvColumn4.Text = "";
             this.olvColumn4.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             this.olvColumn4.Width = 30;
-            // 
-            // olvColSortPriority
-            // 
-            this.olvColSortPriority.AspectName = "SortPriority";
-            this.olvColSortPriority.IsVisible = false;
             // 
             // panel8
             // 
@@ -1361,7 +1366,6 @@
             this.bOtherComponentsTrash.TabIndex = 6;
             this.bOtherComponentsTrash.Text = "DO KOSZA";
             this.bOtherComponentsTrash.UseVisualStyleBackColor = true;
-            this.bOtherComponentsTrash.Visible = false;
             this.bOtherComponentsTrash.Click += new System.EventHandler(this.bOtherComponentsTrash_Click);
             // 
             // label3
@@ -1737,6 +1741,7 @@
             this.dgvAcceptance.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.dgvAcceptance.Location = new System.Drawing.Point(0, 308);
             this.dgvAcceptance.Name = "dgvAcceptance";
+            this.dgvAcceptance.ReadOnly = true;
             this.dgvAcceptance.RowHeadersVisible = false;
             this.dgvAcceptance.RowHeadersWidth = 51;
             this.dgvAcceptance.Size = new System.Drawing.Size(580, 82);
@@ -1748,6 +1753,7 @@
             this.Column1.HeaderText = "Column1";
             this.Column1.MinimumWidth = 6;
             this.Column1.Name = "Column1";
+            this.Column1.ReadOnly = true;
             this.Column1.Width = 6;
             // 
             // ColUserName
@@ -1755,6 +1761,7 @@
             this.ColUserName.HeaderText = "Column2";
             this.ColUserName.MinimumWidth = 6;
             this.ColUserName.Name = "ColUserName";
+            this.ColUserName.ReadOnly = true;
             this.ColUserName.Width = 6;
             // 
             // ColDateTime
@@ -1762,6 +1769,7 @@
             this.ColDateTime.HeaderText = "Column3";
             this.ColDateTime.MinimumWidth = 6;
             this.ColDateTime.Name = "ColDateTime";
+            this.ColDateTime.ReadOnly = true;
             this.ColDateTime.Width = 6;
             // 
             // Column4
@@ -1769,6 +1777,7 @@
             this.Column4.HeaderText = "Column4";
             this.Column4.MinimumWidth = 6;
             this.Column4.Name = "Column4";
+            this.Column4.ReadOnly = true;
             this.Column4.Width = 6;
             // 
             // bChangeOverFinish
@@ -2002,6 +2011,7 @@
         private BrightIdeasSoftware.OLVColumn olvColumn23;
         private BrightIdeasSoftware.OLVColumn olvColumn19;
         private BrightIdeasSoftware.OLVColumn olvColumn24;
+        private System.Windows.Forms.ColumnHeader columnHeader5;
     }
 }
 

@@ -48,8 +48,8 @@ namespace Karta_Pracy_SMT_v2.CurrentOrder
                 stencilId = CurrentMstOrder.currentOrder.SmtData.stencilId
             };
 
-            var dtModel00 = MST.MES.DtTools.GetDtModel00(CurrentMstOrder.currentOrder.KittingData.modelId, DevTools.DtDb);
-            var dtModel46 = MST.MES.DtTools.GetDtModel46(CurrentMstOrder.currentOrder.KittingData.modelId, DevTools.DtDb);
+            var dtModel00 = MST.MES.DtTools.GetDtModel00(CurrentMstOrder.currentOrder.KittingData.Model10Nc, DevTools.DtDb);
+            var dtModel46 = MST.MES.DtTools.GetDtModel46(CurrentMstOrder.currentOrder.KittingData.Model10Nc, DevTools.DtDb);
             ConnectedOrder.modelInfo = new MstOrder.ModelInfo
             {
                 DtModel00 = dtModel00,

@@ -22,7 +22,6 @@ namespace Karta_Pracy_SMT_v2.Forms
         public UpdateOrderQuantity()
         {
             InitializeComponent();
-
         }
 
         private void UpdateOrderQuantity_Load(object sender, EventArgs e)

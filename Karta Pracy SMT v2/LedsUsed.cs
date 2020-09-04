@@ -44,9 +44,9 @@ namespace Karta_Pracy_SMT_v2
             { 
                 get 
                 {
-                    if (CurrentlyInUse) return 0;
-                    if (ComponentInTrash) return 2;
-                    return 1;
+                    if (CurrentlyInUseNotTrashed) return 0;
+                    if (ComponentInTrash) return 1;
+                    return 2;
                 } 
             }
             public string ListViewGroup
@@ -70,6 +70,21 @@ namespace Karta_Pracy_SMT_v2
                     if (string.IsNullOrWhiteSpace(ConnectedComponentFromRwList.StatusTrash)) return false;
                     if (ConnectedComponentFromRwList.StatusTrash.ToUpper() == "KOSZ") return true;
                     return false;
+                }
+            }
+            public bool CurrentlyInUseNotTrashed
+            {
+                get
+                {
+                    return (!ComponentInTrash & CurrentlyInUse);
+                }
+            }
+            public bool CurrentlyInUse
+            {
+                get
+                {
+                    if(ConnectedComponentFromRwList.StatusTrash == null) return false;
+                    return ConnectedComponentFromRwList.StatusTrash.StartsWith("SMT");
                 }
             }
             public string Nc12
@@ -112,15 +127,9 @@ namespace Karta_Pracy_SMT_v2
                     return Karta_Pracy_SMT_v2.Properties.Resources.available_gray;
                 }
             }
-            public bool CurrentlyInUseNotTrashed
-            {
-                get
-                {
-                    return (!ComponentInTrash & CurrentlyInUse);
-                }
-            }
+            
             public bool RefreshingDataRightNow { get; set; }
-            public bool CurrentlyInUse { get; set; }
+            
             public Color BackGround
             {
                 get
@@ -151,27 +160,27 @@ namespace Karta_Pracy_SMT_v2
         }
         public static void AddNewLed(string qrCode)
         {
-            var matchingComponents = ledsInUseList.Where(x => x.qrCode == qrCode);
+            var matchingComponents = ledsInUseList.Where(x => x.qrCode == qrCode).ToList();
             if (!matchingComponents.Any())
             {
                 MessageBox.Show($"Ta dioda nie jest przypisana do tego zlecenia.");
                 return;
             }
-
             LedsUsedStruct matchingReel = matchingComponents.First();
 
-            if (ledsInUseList.Where(x => x.CurrentlyInUseNotTrashed).Count() >= 4) 
-            {
-                MessageBox.Show("Przenieś diody do kosza aby dodać nowe." + Environment.NewLine + "Max. 2 rolki w użyciu na każde 12NC diody.");
-                return;
-            }
+            //if (ledsInUseList.Where(x => x.CurrentlyInUseNotTrashed).Count() >= 8) 
+            //{
+            //    MessageBox.Show("Przenieś diody do kosza aby dodać nowe." + Environment.NewLine + "Max. 2 rolki w użyciu na każde 12NC diody.");
+            //    return;
+            //}
             if (matchingReel.CurrentlyInUse) 
             {
                 MessageBox.Show("Ta dioda jest aktualnie w użyciu. ");
                 return;
             }
-            matchingReel.CurrentlyInUse = true;
+            matchingReel.ConnectedComponentFromRwList.StatusTrash = GlobalParameters.SmtLine;
             olvLedsUsed.SetObjects(ledsInUseList);
+            Graffiti.MST.ComponentsTools.UpdateDbData.SetStatus(qrCode, GlobalParameters.SmtLine);
         }
         public static async void MoveLedToTrash(string qrCode)
         {
@@ -193,7 +202,6 @@ namespace Karta_Pracy_SMT_v2
             ledReel.RefreshingDataRightNow = false;
             olvLedsUsed.SetObjects(ledsInUseList);
         }
-
         public static void ClearList()
         {
             ComponentsOnRw.ClearList();

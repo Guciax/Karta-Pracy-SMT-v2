@@ -18,13 +18,14 @@ namespace Karta_Pracy_SMT_v2
 
         public class OtherComponentsStruct
         {
+            public  MST.MES.Data_structures.DevTools.DevToolsModelStructure DtModel { get; set; }
             public string Name
             {
                 get
                 {
                     if (componentMissing) return "BRAK!";
-                    if (LedCollectiveDb.nc12ToCollective.ContainsKey(Nc12)) return LedCollectiveDb.nc12ToCollective[Nc12].name;
-                    return "";
+                    if (DtModel == null) return "Nieznany";
+                    return DtModel.name;
                 }
             }
             public string Nc12 { get; set; }
@@ -37,8 +38,11 @@ namespace Karta_Pracy_SMT_v2
             public string Date { get; set; }
             public string ComponentGroup { get
                 {
-                    if (Nc12.StartsWith("4010450")) return "Rezystor";
-                    if (Nc12.StartsWith("4010411")) return "Konektor";
+                    if (DtModel == null) return "";
+                    if(DtModel.NcSeriesEnum == MST.MES.Data_structures.DevTools.DevToolsModelStructure.SeriesName.Resistor) return "Rezystor";
+                    if(DtModel.NcSeriesEnum == MST.MES.Data_structures.DevTools.DevToolsModelStructure.SeriesName.Connector) return "Konektor";
+                    //if (Nc12.StartsWith("4010450")) return "Rezystor";
+                    //if (Nc12.StartsWith("4010411")) return "Konektor";
                     return "";
                 } }
 
@@ -87,7 +91,6 @@ namespace Karta_Pracy_SMT_v2
                 } 
             }
         }
-
         /// <summary>
         /// key = 12NCID
         /// </summary>
@@ -96,16 +99,16 @@ namespace Karta_Pracy_SMT_v2
         {
             CheckComponentsAvailabilityForCurrentOder();
             olvOtherComponents.SetObjects(otherComponentsList);
+            olvOtherComponents.Columns[1].Width = olvOtherComponents.Width - 120 - 60 - 60 -20;
             olvOtherComponents.Columns[2].Width = 120;
             olvOtherComponents.Columns[3].Width = 60;
-            olvOtherComponents.Columns[4].Width = 60;
-            olvOtherComponents.Columns[5].Width = 90;
+            olvOtherComponents.Columns[4].Width = 80;
+            //olvOtherComponents.Columns[5].Width = 90;
             //olvOtherComponents.AutoResizeColumn(1, System.Windows.Forms.ColumnHeaderAutoResizeStyle.ColumnContent);
         }
-
         public static void AddNewComponent(string nc12, string id)
         {
-            if (otherComponentsList.Where(x => x.Nc12 == nc12 & x.Id == id).Count() > 0) 
+            if (otherComponentsList.Where(x => x.Nc12 == nc12 & x.Id == id).Any()) 
             {
                 MessageBox.Show("Ten komponent już jest na liście");
                 return;
@@ -139,11 +142,11 @@ namespace Karta_Pracy_SMT_v2
                 }
             }
             //MST.MES.SqlOperations.SparingLedInfo.UpdateLedLocation(nc12, id, GlobalParameters.SmtLine);
-            Graffiti.MST.ComponentsTools.UpdateDbData.UpdateComponentLocation($"{nc12}|ID:{id}", Graffiti.MST.ComponentsLocations.LineNumberToLocation(GlobalParameters.SmtLine));
+            //Graffiti.MST.ComponentsTools.UpdateDbData.UpdateComponentLocation($"{nc12}|ID:{id}", Graffiti.MST.ComponentsLocations.LineNumberToLocation(GlobalParameters.SmtLine));
+            Graffiti.MST.ComponentsTools.UpdateDbData.SetStatus($"{nc12}|ID:{id}", GlobalParameters.SmtLine);
             GetOtherComponentsForSmtLineFromDb();
             UpdateList();
         }
-
         public static void MoveComponentToTrash(string nc12, string id)
         {
             if(otherComponentsList.Where(x=>x.Nc12==nc12 & x.Id == id).Count() == 0)
@@ -155,11 +158,10 @@ namespace Karta_Pracy_SMT_v2
             //Graffiti.MST.ComponentsTools.UpdateDbData.UpdateComponentQty($"{nc12}|ID:{id}", 0);
             //MST.MES.SqlOperations.SparingLedInfo.UpdateLedLocation(nc12, id, "KOSZ");
             //Graffiti.MST.ComponentsTools.UpdateDbData.UpdateComponentLocation($"{nc12}|ID:{id}", Graffiti.MST.ComponentsLocations.ComponentsTrash);
-
+            Graffiti.MST.ComponentsTools.UpdateDbData.SetStatus($"{nc12}|ID:{id}", "KOSZ");
             GetOtherComponentsForSmtLineFromDb();
             UpdateList();
         }
-
         public static void MoveComponentToStorage(string nc12, string id)
         {
             //4010441#PCB#EL2.B-1/1
@@ -180,8 +182,53 @@ namespace Karta_Pracy_SMT_v2
             GetOtherComponentsForSmtLineFromDb();
             UpdateList();
         }
-
         public static async void GetOtherComponentsForSmtLineFromDb()
+        {
+            List<OtherComponentsStruct> result = new List<OtherComponentsStruct>();
+            var componentsQrCodes = Graffiti.MST.ComponentsTools.GetDbData.GetQrCodesFromStatus(GlobalParameters.SmtLine);
+            foreach (var comp in componentsQrCodes)
+            {
+                var splittedQr = comp.Lp100.Split(new string[] { "|ID:" }, StringSplitOptions.None);
+
+                var dtModels = DevTools.DtDb.Where(x => x.nc12 == splittedQr[0]);
+                MST.MES.Data_structures.DevTools.DevToolsModelStructure dtModel = null;
+                if (dtModels.Any())
+                {
+                    dtModel = dtModels.First();
+                    if (dtModel.NcSeriesEnum == MST.MES.Data_structures.DevTools.DevToolsModelStructure.SeriesName.LedDiode
+                       || dtModel.NcSeriesEnum == MST.MES.Data_structures.DevTools.DevToolsModelStructure.SeriesName.Pcb)
+                        continue;
+                }
+                result.Add(new OtherComponentsStruct
+                {
+                    Nc12 = splittedQr[0],
+                    Id = splittedQr[1],
+                    Date = comp.SetStatusDate.ToString("dd-MM-yyyy"),
+                    Qty = "0",
+                    QtyPreviouslyUsedReelInSameOrder = 0,
+                    DtModel = dtModel
+                });
+            }
+            //foreach (var component in ComponentsOnSmtLineLocation.thisLineOtherComponents)
+            //{
+            //    int prevReelQty = 0;
+            //    if (previousReelQty.ContainsKey($"{component.Nc12}{component.Id}"))
+            //    {
+            //        prevReelQty = previousReelQty[$"{component.Nc12}{component.Id}"];
+            //    }
+            //    result.Add(new OtherComponentsStruct
+            //    {
+            //        Nc12 = component.Nc12,
+            //        Id = component.Id,
+            //        Date = component.operationDate.ToString(),
+            //        Qty = component.Quantity.ToString(),
+            //        QtyPreviouslyUsedReelInSameOrder = prevReelQty
+            //    });
+            //}
+            otherComponentsList = result;
+        }
+
+        public static async void GetOtherComponentsForSmtLineFromDb_OLD()
         {
             List<OtherComponentsStruct> result = new List<OtherComponentsStruct>();
             await ComponentsOnSmtLineLocation.ReloadAync();

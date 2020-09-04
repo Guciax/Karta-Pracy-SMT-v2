@@ -41,23 +41,18 @@ namespace Karta_Pracy_SMT_v2.CurrentOrder
         {
             lvProdNorms.Items.Clear();
             if (_currentOrder == null) return;
-            var norm = MST.MES.EfficiencyCalculation.CalculateModelNormPerHour(_currentOrder.modelInfo.DtModel00, GlobalParameters.SmtLine);
-            TryGetMbOrPcb(lvProdNorms);
-            TryGetPcbPerMb(lvProdNorms);
-            TryGetLedCount(lvProdNorms);
-            TryGetConnCount(lvProdNorms);
-            TryGetResCount(lvProdNorms);
-
-            lvProdNorms.Items.Add(new ListViewItem());
-            lvProdNorms.Items.Add(new ListViewItem(new[] { "Czas cyklu:", $"{norm.lineCT} sek." }));
-            lvProdNorms.Items.Add(new ListViewItem(new[] { "Wydajność:", $"{norm.outputPerHour} szt./godz." }));
+            var norm = MST.MES.EfficiencyCalculation.CalculateModelNormPerHour(_currentOrder.modelInfo.DtModel00, GlobalParameters.SmtLine, currentOrder.KittingData.SmtHeadsUsed);
+            
+            lvProdNorms.Items.Add(new ListViewItem(new[] {  "", "Norma", "Aktualnie" }));
+            lvProdNorms.Items.Add(new ListViewItem(new[] { "Czas cyklu:", $"{norm.lineCT} sek.", Efficiency.ShowEfficiency.CurrentAverageCycleTime.ToString() }));
+            lvProdNorms.Items.Add(new ListViewItem(new[] { "Wydajność:", $"{norm.outputPerHour} szt./godz.", Efficiency.ShowEfficiency.CurrentOutputPerHour.ToString() }));
             var qtyToMake = currentOrder.KittingData.orderedQty - currentOrder.ManufacturedQty;
             lvProdNorms.Items.Add(new ListViewItem(new[] { $"Czas produkcji {qtyToMake}szt:", $"{(int)(60 / norm.outputPerHour * qtyToMake)} min." }));
 
             lvProdNorms.Columns[0].Width = -1;
             lvProdNorms.Columns[1].Width = -1;
+            lvProdNorms.Columns[2].Width = -1;
         }
-
         public static void UpdateListViewOrderInfo()
         {
             lvOrderInfo.Items.Clear();
@@ -94,6 +89,11 @@ namespace Karta_Pracy_SMT_v2.CurrentOrder
                         binLetter++;
                     }
                 }
+                TryGetMbOrPcb(lvOrderInfo);
+                TryGetPcbPerMb(lvOrderInfo);
+                TryGetLedCount(lvOrderInfo);
+                TryGetConnCount(lvOrderInfo);
+                TryGetResCount(lvOrderInfo);
             }
             lvOrderInfo.Columns[0].Width = -1;
             lvOrderInfo.Columns[1].Width = -1;
